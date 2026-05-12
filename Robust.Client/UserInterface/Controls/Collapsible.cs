@@ -1,4 +1,5 @@
 using System;
+using System.Numerics;
 using Robust.Client.Graphics;
 using Robust.Shared.Maths;
 
@@ -84,7 +85,13 @@ namespace Robust.Client.UserInterface.Controls
     [Virtual]
     public class CollapsibleHeading : ContainerButton
     {
-        private TextureRect _chevron = new TextureRect
+        public const string StylePropertyChevronTexture = "chevron-texture";
+        public const string StylePropertyChevronModulateSelf = "chevron-modulate-self";
+        public const string StylePropertyChevronShader = "chevron-shader";
+        public const string StylePropertyChevronTextureStretch = "chevron-texture-stretch";
+        public const string StylePropertyChevronTextureScale = "chevron-texture-scale";
+
+        private readonly TextureRect _chevron = new TextureRect
         {
             StyleClasses = { OptionButton.StyleClassOptionTriangle },
             Margin = new Thickness(2, 0),
@@ -128,6 +135,19 @@ namespace Robust.Client.UserInterface.Controls
         public CollapsibleHeading(string title) : this()
         {
             Title = title;
+        }
+
+        protected override void StylePropertiesChanged()
+        {
+            base.StylePropertiesChanged();
+            _chevron.Texture = StylePropertyDefault<Texture?>(StylePropertyChevronTexture, null);
+            _chevron.ModulateSelfOverride =
+                TryGetStyleProperty<Color>(StylePropertyChevronModulateSelf, out var modulate)
+                    ? modulate
+                    : null;
+            _chevron.ShaderOverride = StylePropertyDefault<ShaderInstance?>(StylePropertyChevronShader, null);
+            _chevron.Stretch = StylePropertyDefault(StylePropertyChevronTextureStretch, TextureRect.StretchMode.Keep);
+            _chevron.TextureScale = StylePropertyDefault(StylePropertyChevronTextureScale, Vector2.One);
         }
     }
 
