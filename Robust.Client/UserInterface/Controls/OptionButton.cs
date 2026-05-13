@@ -11,6 +11,7 @@ namespace Robust.Client.UserInterface.Controls
     [Virtual]
     public class OptionButton : ContainerButton
     {
+        public const string StylePseudoClassOpen = "open";
         public const string StyleClassOptionButton = "optionButton";
         public const string StyleClassPopup = "optionButtonPopup";
         public const string StyleClassOptionTriangle = "optionTriangle";
@@ -24,6 +25,16 @@ namespace Robust.Client.UserInterface.Controls
         private readonly Label _label;
         private readonly TextureRect _triangle;
         private readonly LineEdit _filterBox;
+
+        private bool _popupOpen
+        {
+            get;
+            set
+            {
+                field = value;
+                DrawModeChanged();
+            }
+        }
 
         public int ItemCount => _buttonData.Count;
 
@@ -195,6 +206,7 @@ namespace Robust.Client.UserInterface.Controls
                 var box = UIBox2.FromDimensions(globalPos, new Vector2(Math.Max(minX, Width), minY));
                 Root.ModalRoot.AddChild(_popup);
                 _popup.Open(box);
+                _popupOpen = true;
 
                 if (_filterable)
                     _filterBox.GrabKeyboardFocus();
@@ -207,6 +219,7 @@ namespace Robust.Client.UserInterface.Controls
 
         private void OnPopupHide()
         {
+            _popupOpen = false;
             _popup.Orphan();
         }
 
@@ -356,6 +369,16 @@ namespace Robust.Client.UserInterface.Controls
         private void OnPressedInternal(ButtonEventArgs args)
         {
             TogglePopup(true);
+        }
+
+        protected override void DrawModeChanged()
+        {
+            base.DrawModeChanged();
+
+            if (_popupOpen)
+                AddStylePseudoClass(StylePseudoClassOpen);
+            else
+                RemoveStylePseudoClass(StylePseudoClassOpen);
         }
 
         protected override void ExitedTree()
