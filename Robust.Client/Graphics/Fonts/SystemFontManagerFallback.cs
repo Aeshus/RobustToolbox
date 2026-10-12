@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace Robust.Client.Graphics.FontManagement;
+namespace Robust.Client.Graphics.Fonts;
 
 /// <summary>
 /// A fallback implementation of <see cref="ISystemFontManager"/> that just loads no fonts.

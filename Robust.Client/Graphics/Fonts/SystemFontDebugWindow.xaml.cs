@@ -8,7 +8,7 @@ using Robust.Shared.IoC;
 using Robust.Shared.Maths;
 using Robust.Shared.Utility;
 
-namespace Robust.Client.Graphics.FontManagement;
+namespace Robust.Client.Graphics.Fonts;
 
 [GenerateTypedNameReferences]
 internal sealed partial class SystemFontDebugWindow : DefaultWindow

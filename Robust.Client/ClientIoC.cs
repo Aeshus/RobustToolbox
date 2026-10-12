@@ -6,7 +6,7 @@ using Robust.Client.GameObjects;
 using Robust.Client.GameStates;
 using Robust.Client.Graphics;
 using Robust.Client.Graphics.Clyde;
-using Robust.Client.Graphics.FontManagement;
+using Robust.Client.Graphics.Fonts;
 using Robust.Client.HWId;
 using Robust.Client.Input;
 using Robust.Client.Localization;

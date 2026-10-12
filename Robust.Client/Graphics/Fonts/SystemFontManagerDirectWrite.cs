@@ -14,7 +14,7 @@ using static TerraFX.Interop.DirectX.DWRITE_FACTORY_TYPE;
 using static TerraFX.Interop.DirectX.DWRITE_FONT_PROPERTY_ID;
 using static TerraFX.Interop.Windows.Windows;
 
-namespace Robust.Client.Graphics.FontManagement;
+namespace Robust.Client.Graphics.Fonts;
 
 /// <summary>
 /// Implementation of <see cref="ISystemFontManager"/> that uses DirectWrite on Windows.

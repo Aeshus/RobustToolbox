@@ -1,6 +1,6 @@
 using Robust.Shared.Console;
 
-namespace Robust.Client.Graphics.FontManagement;
+namespace Robust.Client.Graphics.Fonts;
 
 internal sealed class SystemFontDebugCommand : IConsoleCommand
 {

@@ -5,7 +5,7 @@ using System.IO.MemoryMappedFiles;
 using System.Threading;
 using Robust.Shared.Log;
 
-namespace Robust.Client.Graphics.FontManagement;
+namespace Robust.Client.Graphics.Fonts;
 
 internal abstract class SystemFontManagerBase
 {

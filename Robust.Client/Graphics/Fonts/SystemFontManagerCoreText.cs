@@ -8,7 +8,7 @@ using Robust.Shared.Maths;
 using CF = Robust.Client.Interop.MacOS.CoreFoundation;
 using CT = Robust.Client.Interop.MacOS.CoreText;
 
-namespace Robust.Client.Graphics.FontManagement;
+namespace Robust.Client.Graphics.Fonts;
 
 /// <summary>
 /// Implementation of <see cref="ISystemFontManager"/> that uses CoreText on macOS.

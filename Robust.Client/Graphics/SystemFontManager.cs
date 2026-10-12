@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using Robust.Client.Graphics.FontManagement;
+using Robust.Client.Graphics.Fonts;
 using Robust.Shared;
 using Robust.Shared.Configuration;
 using Robust.Shared.IoC;
