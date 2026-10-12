@@ -48,7 +48,7 @@ internal sealed partial class FontManager : IFontManagerInternal, IPostInjectIni
 
     public IFontFaceHandle Load(IFontMemoryHandle memory, int index = 0)
     {
-        var face = FaceLoad(memory, index);
+        var face = LoadFace(memory, index);
         var handle = new FontFaceHandle(face, memory);
         return handle;
     }
@@ -59,7 +59,7 @@ internal sealed partial class FontManager : IFontManagerInternal, IPostInjectIni
 
         for (var i = 0; i < numFaces; i++)
         {
-            var face = FaceLoad(memory, i);
+            var face = LoadFace(memory, i);
             numFaces = face.FaceCount;
 
             if (face.GetPostscriptName() == postscriptName)
@@ -70,10 +70,10 @@ internal sealed partial class FontManager : IFontManagerInternal, IPostInjectIni
 
         // Fallback, load SOMETHING.
         _sawmill.Warning($"Failed to load correct font via postscript name! {postscriptName}");
-        return new FontFaceHandle(FaceLoad(memory, 0), memory);
+        return new FontFaceHandle(LoadFace(memory, 0), memory);
     }
 
-    private unsafe Face FaceLoad(IFontMemoryHandle memory, int index)
+    private unsafe Face LoadFace(IFontMemoryHandle memory, int index)
     {
         return new Face(_library,
             (nint)memory.GetData(),
