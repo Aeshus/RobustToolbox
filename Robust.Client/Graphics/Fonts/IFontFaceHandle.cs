@@ -4,6 +4,7 @@ namespace Robust.Client.Graphics.Fonts;
 
 internal interface IFontFaceHandle
 {
+    Face Face { get; }
 }
 
 internal sealed class FontFaceHandle : IFontFaceHandle

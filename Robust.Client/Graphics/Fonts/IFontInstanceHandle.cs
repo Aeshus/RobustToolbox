@@ -77,13 +77,13 @@ internal readonly record struct OutlinedGlyph(Texture Texture, int Left, int Top
 [PublicAPI]
 internal sealed class FontInstanceHandle : IFontInstanceHandle
 {
-    public FontFaceHandle FaceHandle { get; }
+    public IFontFaceHandle FaceHandle { get; }
     public int Size { get; }
     private readonly Dictionary<float, ScaledFontData> _scaledData = new();
     private readonly FontManager _fontManager;
     public readonly Dictionary<Rune, uint> GlyphMap;
 
-    public FontInstanceHandle(FontManager fontManager, int size, FontFaceHandle faceHandle)
+    public FontInstanceHandle(FontManager fontManager, int size, IFontFaceHandle faceHandle)
     {
         GlyphMap = new Dictionary<Rune, uint>();
         _fontManager = fontManager;

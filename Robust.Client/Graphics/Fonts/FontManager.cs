@@ -30,7 +30,7 @@ internal sealed partial class FontManager : IFontManagerInternal, IPostInjectIni
 
     private readonly Library _library = new();
 
-    private readonly Dictionary<(FontFaceHandle, int fontSize), FontInstanceHandle> _loadedInstances =
+    private readonly Dictionary<(IFontFaceHandle, int fontSize), FontInstanceHandle> _loadedInstances =
         new();
 
     public void PostInject()
@@ -88,7 +88,7 @@ internal sealed partial class FontManager : IFontManagerInternal, IPostInjectIni
 
     public IFontInstanceHandle MakeInstance(IFontFaceHandle handle, int size)
     {
-        var fontFaceHandle = (FontFaceHandle)handle;
+        var fontFaceHandle = handle;
         if (_loadedInstances.TryGetValue((fontFaceHandle, size), out var instance))
         {
             return instance;
