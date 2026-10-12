@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using Robust.Client.Graphics.Fonts;
 using Robust.Client.Utility;
 using Robust.Shared.Log;
 using Robust.Shared.Maths;
@@ -10,7 +9,7 @@ using SharpFont;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 
-namespace Robust.Client.Graphics;
+namespace Robust.Client.Graphics.Fonts;
 
 internal sealed class FontManager : IFontManagerInternal
 {
