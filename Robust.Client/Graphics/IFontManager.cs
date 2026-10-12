@@ -9,6 +9,7 @@ namespace Robust.Client.Graphics
     {
         public void ClearFontCache();
     }
+
     internal interface IFontManagerInternal : IFontManager
     {
         IFontFaceHandle Load(Stream stream, int index = 0);
@@ -20,13 +21,13 @@ namespace Robust.Client.Graphics
         /// <param name="memory">Memory for the entire font collection.</param>
         /// <param name="postscriptName">The postscript name of the font to load.</param>
         IFontFaceHandle LoadWithPostscriptName(IFontMemoryHandle memory, string postscriptName);
+
         IFontInstanceHandle MakeInstance(IFontFaceHandle handle, int size);
         void SetFontDpi(uint fontDpi);
     }
 
     internal interface IFontFaceHandle
     {
-
     }
 
     internal readonly record struct OutlinedGlyph(Texture Texture, int Left, int Top);
@@ -45,10 +46,10 @@ namespace Robust.Client.Graphics
             out OutlinedGlyph? outlinedGlyph);
 
         Texture? GetCharTexture(Rune codePoint, float scale);
-        Texture? GetCharTexture(char chr, float scale) => GetCharTexture((Rune) chr, scale);
+        Texture? GetCharTexture(char chr, float scale) => GetCharTexture((Rune)chr, scale);
         OutlinedGlyph? GetOutlinedChar(Rune codePoint, float scale, float thickness);
         CharMetrics? GetCharMetrics(Rune codePoint, float scale);
-        CharMetrics? GetCharMetrics(char chr, float scale) => GetCharMetrics((Rune) chr, scale);
+        CharMetrics? GetCharMetrics(char chr, float scale) => GetCharMetrics((Rune)chr, scale);
 
         int GetAscent(float scale);
         int GetDescent(float scale);
