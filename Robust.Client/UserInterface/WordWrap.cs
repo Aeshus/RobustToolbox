@@ -1,7 +1,7 @@
 using System;
 using System.Diagnostics.Contracts;
 using System.Text;
-using Robust.Client.Graphics;
+using Robust.Client.Graphics.Fonts;
 using Robust.Shared.Log;
 using Robust.Shared.Utility;
 
