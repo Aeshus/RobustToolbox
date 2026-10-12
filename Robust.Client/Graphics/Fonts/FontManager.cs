@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using Robust.Client.Utility;
+using Robust.Shared.IoC;
 using Robust.Shared.Log;
 using Robust.Shared.Maths;
 using Robust.Shared.Utility;
@@ -11,8 +12,11 @@ using SixLabors.ImageSharp.PixelFormats;
 
 namespace Robust.Client.Graphics.Fonts;
 
-internal sealed class FontManager : IFontManagerInternal
+internal sealed partial class FontManager : IFontManagerInternal, IPostInjectInit
 {
+    [Dependency] private IClyde _clyde = default!;
+    [Dependency] private ILogManager _logManager = default!;
+
     private const int SheetWidth = 256;
 
     private const int SheetHeight = 256;
@@ -20,21 +24,18 @@ internal sealed class FontManager : IFontManagerInternal
     // FreeType's stroker radius is expressed in 26.6 fixed-point pixel units.
     internal const float FreeType26Dot6Scale = 64f;
 
-    private readonly IClyde _clyde;
-    private readonly ISawmill _sawmill;
+    private ISawmill _sawmill = default!;
 
     private uint _baseFontDpi = 96;
 
-    private readonly Library _library;
+    private readonly Library _library = new();
 
     private readonly Dictionary<(FontFaceHandle, int fontSize), FontInstanceHandle> _loadedInstances =
         new();
 
-    public FontManager(IClyde clyde, ILogManager logManager)
+    public void PostInject()
     {
-        _clyde = clyde;
-        _library = new Library();
-        _sawmill = logManager.GetSawmill("font");
+        _sawmill = _logManager.GetSawmill("font");
     }
 
     public IFontFaceHandle Load(Stream stream, int index = 0)
