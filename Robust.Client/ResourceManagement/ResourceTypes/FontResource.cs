@@ -1,5 +1,6 @@
 ﻿using System.IO;
 using Robust.Client.Graphics;
+using Robust.Client.Graphics.Fonts;
 using Robust.Shared.ContentPack;
 using Robust.Shared.IoC;
 using Robust.Shared.Utility;

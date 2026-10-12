@@ -4,6 +4,7 @@ using System.IO;
 using System.Runtime.InteropServices;
 using System.Text;
 using JetBrains.Annotations;
+using Robust.Client.Graphics.Fonts;
 using Robust.Client.Utility;
 using Robust.Shared.Log;
 using Robust.Shared.Maths;
