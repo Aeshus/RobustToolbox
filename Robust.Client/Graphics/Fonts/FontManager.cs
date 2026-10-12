@@ -43,7 +43,7 @@ internal sealed partial class FontManager : IFontManagerInternal, IPostInjectIni
         // Freetype directly operates on the font memory managed by us.
         // As such, the font data should be pinned in POH.
         var fontData = stream.CopyToPinnedArray();
-        return Load(new ArrayMemoryHandle(fontData), index);
+        return Load(new ArrayFontMemoryHandle(fontData), index);
     }
 
     public IFontFaceHandle Load(IFontMemoryHandle memory, int index = 0)

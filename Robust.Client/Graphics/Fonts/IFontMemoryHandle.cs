@@ -9,7 +9,7 @@ internal unsafe interface IFontMemoryHandle : IDisposable
     nint GetDataSize();
 }
 
-internal sealed class ArrayMemoryHandle(byte[] array) : IFontMemoryHandle
+internal sealed class ArrayFontMemoryHandle(byte[] array) : IFontMemoryHandle
 {
     private GCHandle _gcHandle = GCHandle.Alloc(array, GCHandleType.Pinned);
 
@@ -30,7 +30,7 @@ internal sealed class ArrayMemoryHandle(byte[] array) : IFontMemoryHandle
         GC.SuppressFinalize(this);
     }
 
-    ~ArrayMemoryHandle()
+    ~ArrayFontMemoryHandle()
     {
         Dispose();
     }
