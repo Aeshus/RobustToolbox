@@ -30,7 +30,7 @@ internal sealed partial class FontManager : IFontManagerInternal, IPostInjectIni
 
     private readonly Library _library = new();
 
-    private readonly Dictionary<(IFontFaceHandle, int fontSize), FontInstanceHandle> _loadedInstances =
+    private readonly Dictionary<(FontFaceHandle, int fontSize), FontInstanceHandle> _loadedInstances =
         new();
 
     public void PostInject()
@@ -38,7 +38,7 @@ internal sealed partial class FontManager : IFontManagerInternal, IPostInjectIni
         _sawmill = _logManager.GetSawmill("font");
     }
 
-    public IFontFaceHandle Load(Stream stream, int index = 0)
+    public FontFaceHandle Load(Stream stream, int index = 0)
     {
         // Freetype directly operates on the font memory managed by us.
         // As such, the font data should be pinned in POH.
@@ -46,14 +46,14 @@ internal sealed partial class FontManager : IFontManagerInternal, IPostInjectIni
         return Load(new ArrayFontMemoryHandle(fontData), index);
     }
 
-    public IFontFaceHandle Load(IFontMemoryHandle memory, int index = 0)
+    public FontFaceHandle Load(IFontMemoryHandle memory, int index = 0)
     {
         var face = LoadFace(memory, index);
         var handle = new FontFaceHandle(face, memory);
         return handle;
     }
 
-    public IFontFaceHandle LoadWithPostscriptName(IFontMemoryHandle memory, string postscriptName)
+    public FontFaceHandle LoadWithPostscriptName(IFontMemoryHandle memory, string postscriptName)
     {
         var numFaces = 1;
 
@@ -86,7 +86,7 @@ internal sealed partial class FontManager : IFontManagerInternal, IPostInjectIni
         _baseFontDpi = fontDpi;
     }
 
-    public IFontInstanceHandle MakeInstance(IFontFaceHandle handle, int size)
+    public FontInstanceHandle MakeInstance(FontFaceHandle handle, int size)
     {
         var fontFaceHandle = handle;
         if (_loadedInstances.TryGetValue((fontFaceHandle, size), out var instance))

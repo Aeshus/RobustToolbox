@@ -39,7 +39,7 @@ internal abstract class SystemFontManagerBase
         SystemFontFaces = Fonts.AsReadOnly();
     }
 
-    protected abstract IFontFaceHandle LoadFontFace(BaseHandle handle);
+    protected abstract FontFaceHandle LoadFontFace(BaseHandle handle);
 
     protected static string GetLocalizedForLocaleOrFirst(LocalizedStringSet set, CultureInfo culture)
     {
@@ -57,7 +57,7 @@ internal abstract class SystemFontManagerBase
 
     protected abstract class BaseHandle(SystemFontManagerBase parent) : ISystemFontFace
     {
-        private IFontFaceHandle? _cachedFont;
+        private FontFaceHandle? _cachedFont;
 
         public required string PostscriptName { get; init; }
 
@@ -97,7 +97,7 @@ internal abstract class SystemFontManagerBase
             return new VectorFont(instance, size);
         }
 
-        private IFontFaceHandle GetFaceHandle()
+        private FontFaceHandle GetFaceHandle()
         {
             lock (parent.Lock)
             {

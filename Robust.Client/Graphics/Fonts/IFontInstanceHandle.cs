@@ -6,31 +6,6 @@ using SharpFont;
 
 namespace Robust.Client.Graphics.Fonts;
 
-internal interface IFontInstanceHandle
-{
-    /// <summary>
-    ///     Fetches all data needed to draw a glyph.
-    /// </summary>
-    bool TryGetGlyph(
-        Rune codePoint,
-        float scale,
-        float outlineThickness,
-        out CharMetrics metrics,
-        out Texture? texture,
-        out OutlinedGlyph? outlinedGlyph);
-
-    Texture? GetCharTexture(Rune codePoint, float scale);
-    Texture? GetCharTexture(char chr, float scale) => GetCharTexture((Rune)chr, scale);
-    OutlinedGlyph? GetOutlinedChar(Rune codePoint, float scale, float thickness);
-    CharMetrics? GetCharMetrics(Rune codePoint, float scale);
-    CharMetrics? GetCharMetrics(char chr, float scale) => GetCharMetrics((Rune)chr, scale);
-
-    int GetAscent(float scale);
-    int GetDescent(float scale);
-    int GetHeight(float scale);
-    int GetLineHeight(float scale);
-}
-
 /// <summary>
 ///     Metrics for a single glyph in a font.
 ///     Refer to https://www.freetype.org/freetype2/docs/glyphs/glyphs-3.html for more information.
@@ -75,15 +50,15 @@ public readonly struct CharMetrics
 internal readonly record struct OutlinedGlyph(Texture Texture, int Left, int Top);
 
 [PublicAPI]
-internal sealed class FontInstanceHandle : IFontInstanceHandle
+internal sealed class FontInstanceHandle
 {
-    public IFontFaceHandle FaceHandle { get; }
+    public FontFaceHandle FaceHandle { get; }
     public int Size { get; }
     private readonly Dictionary<float, ScaledFontData> _scaledData = new();
     private readonly FontManager _fontManager;
     public readonly Dictionary<Rune, uint> GlyphMap;
 
-    public FontInstanceHandle(FontManager fontManager, int size, IFontFaceHandle faceHandle)
+    public FontInstanceHandle(FontManager fontManager, int size, FontFaceHandle faceHandle)
     {
         GlyphMap = new Dictionary<Rune, uint>();
         _fontManager = fontManager;

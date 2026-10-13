@@ -2,12 +2,7 @@ using SharpFont;
 
 namespace Robust.Client.Graphics.Fonts;
 
-internal interface IFontFaceHandle
-{
-    Face Face { get; }
-}
-
-internal sealed class FontFaceHandle : IFontFaceHandle
+internal sealed class FontFaceHandle
 {
     // Keep this alive to avoid it being GC'd.
     private readonly IFontMemoryHandle _memoryHandle;

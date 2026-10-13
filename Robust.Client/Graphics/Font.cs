@@ -132,7 +132,7 @@ namespace Robust.Client.Graphics
     {
         public int Size { get; }
 
-        internal IFontInstanceHandle Handle { get; }
+        internal FontInstanceHandle Handle { get; }
 
         public VectorFont(FontResource res, int size)
         {
@@ -140,7 +140,7 @@ namespace Robust.Client.Graphics
             Handle = IoCManager.Resolve<IFontManagerInternal>().MakeInstance(res.FontFaceHandle, size);
         }
 
-        internal VectorFont(IFontInstanceHandle handle, int size)
+        internal VectorFont(FontInstanceHandle handle, int size)
         {
             Size = size;
             Handle = handle;
