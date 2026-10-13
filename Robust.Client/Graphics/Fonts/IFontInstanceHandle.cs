@@ -54,7 +54,7 @@ internal sealed class FontInstanceHandle
 {
     public FontFaceHandle FaceHandle { get; }
     public int Size { get; }
-    private readonly Dictionary<float, ScaledFontData> _scaledData = new();
+    private readonly Dictionary<float, FontInstance> _scaledData = new();
     private readonly FontManager _fontManager;
     public readonly Dictionary<Rune, uint> GlyphMap;
 
@@ -190,7 +190,7 @@ internal sealed class FontInstanceHandle
         return index;
     }
 
-    private ScaledFontData GetScaleDatum(float scale)
+    private FontInstance GetScaleDatum(float scale)
     {
         if (_scaledData.TryGetValue(scale, out var datum))
         {
@@ -203,9 +203,9 @@ internal sealed class FontInstanceHandle
     }
 }
 
-internal sealed class ScaledFontData
+internal sealed class FontInstance
 {
-    public ScaledFontData(int ascent, int descent, int height, int lineHeight, Library library)
+    public FontInstance(int ascent, int descent, int height, int lineHeight, Library library)
     {
         Ascent = ascent;
         Descent = descent;

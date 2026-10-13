@@ -108,7 +108,7 @@ internal sealed partial class FontManager : IFontManagerInternal, IPostInjectIni
         }
     }
 
-    internal ScaledFontData _generateScaledDatum(FontInstanceHandle instance, float scale)
+    internal FontInstance _generateScaledDatum(FontInstanceHandle instance, float scale)
     {
         var ftFace = instance.FaceHandle.Face;
         ftFace.SetCharSize(0, instance.Size, 0, (uint)(_baseFontDpi * scale));
@@ -117,13 +117,13 @@ internal sealed partial class FontManager : IFontManagerInternal, IPostInjectIni
         var descent = -ftFace.Size.Metrics.Descender.ToInt32();
         var lineHeight = ftFace.Size.Metrics.Height.ToInt32();
 
-        var data = new ScaledFontData(ascent, descent, ascent + descent, lineHeight, _library);
+        var data = new FontInstance(ascent, descent, ascent + descent, lineHeight, _library);
 
 
         return data;
     }
 
-    internal GlyphInfo EnsureGlyphCached(FontInstanceHandle instance, ScaledFontData scaled, float scale, uint glyph)
+    internal GlyphInfo EnsureGlyphCached(FontInstanceHandle instance, FontInstance scaled, float scale, uint glyph)
     {
         // Check if already cached.
         if (scaled.GlyphInfos.TryGetValue(glyph, out var info))
@@ -152,7 +152,7 @@ internal sealed partial class FontManager : IFontManagerInternal, IPostInjectIni
 
     internal OutlinedGlyphInfo EnsureOutlinedGlyphCached(
         FontInstanceHandle instance,
-        ScaledFontData scaled,
+        FontInstance scaled,
         float scale,
         uint glyph,
         int radius)
@@ -186,7 +186,7 @@ internal sealed partial class FontManager : IFontManagerInternal, IPostInjectIni
 
     private AtlasTexture? CacheBitmap(
         FontInstanceHandle instance,
-        ScaledFontData scaled,
+        FontInstance scaled,
         float scale,
         FTBitmap bitmap)
     {
