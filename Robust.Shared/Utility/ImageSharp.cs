@@ -32,7 +32,7 @@ internal static class ImageSharp
         // Webp is registered in clyde and used in WizDen
         new WebpImageFormatDetector(),
 
-        // No usages (explicitly deprecate at some point):
+        // No usages (consider removal at some point):
         new QoiImageFormatDetector(),
         new PbmImageFormatDetector()
 

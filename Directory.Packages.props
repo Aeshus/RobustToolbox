@@ -90,10 +90,12 @@
   </ItemGroup>
   <ItemGroup>
     <!--
-    ImageSharp advisories fixed only in versions which need a license key to build.
-    We could get one since we're an OSS project but that's a lot of work.
-    IccProfile.Entries and HistogramEqualization are never used,
-    TIFF is never encoded, and SharedIoC stops ImageSharp from detecting TIFF.
+    Wizards' Den DevOps is in the works to get a license key for the latest ImageSharp version to distribute, but in
+    the meantime, we have mitigated these by either the sandbox disallowing access to the respective codepaths
+    (e.g. IccProfile or HistogramEqualization).
+
+    To be cautious, we have decided to disable access to the dynamic TIFF detectors (used for loading), which should
+    disallow access completely to the vulnerable codepaths.
     -->
     <NuGetAuditSuppress Include="https://github.com/advisories/GHSA-gwg2-r3hj-4w44" />
     <NuGetAuditSuppress Include="https://github.com/advisories/GHSA-j3p4-wp97-rph4" />
