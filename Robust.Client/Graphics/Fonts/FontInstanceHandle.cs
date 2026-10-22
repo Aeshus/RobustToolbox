@@ -17,7 +17,6 @@ internal sealed class FontInstanceHandle(IClyde clyde, Library library, FontFace
     private const int SheetWidth = 256;
     private const int SheetHeight = 256;
 
-    private readonly FontFaceHandle _faceHandle = faceHandle;
     private int Size { get; } = size;
     private readonly Dictionary<float, FontInstance> _instances = new();
 
@@ -57,14 +56,14 @@ internal sealed class FontInstanceHandle(IClyde clyde, Library library, FontFace
         out Texture? texture,
         out OutlinedGlyph? outlinedGlyph)
     {
-        var glyph = _faceHandle.GetGlyphIndex(codePoint);
+        metrics = default;
+        texture = null;
+        outlinedGlyph = null;
+
+        var glyph = faceHandle.GetGlyphIndex(codePoint);
+
         if (glyph == 0)
-        {
-            metrics = default;
-            texture = null;
-            outlinedGlyph = null;
             return false;
-        }
 
         var instance = GetInstance(scale);
         var glyphInfo = instance.EnsureGlyphCached(scale, glyph);
@@ -90,7 +89,7 @@ internal sealed class FontInstanceHandle(IClyde clyde, Library library, FontFace
         if (thickness <= 0)
             return null;
 
-        var glyph = _faceHandle.GetGlyphIndex(codePoint);
+        var glyph = faceHandle.GetGlyphIndex(codePoint);
         if (glyph == 0)
             return null;
 
