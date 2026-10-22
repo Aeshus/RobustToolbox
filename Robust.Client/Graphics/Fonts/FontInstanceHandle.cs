@@ -57,7 +57,7 @@ internal sealed class FontInstanceHandle(IClyde clyde, Library library, FontFace
 
     private readonly FontFaceHandle _faceHandle = faceHandle;
     private int Size { get; } = size;
-    private readonly Dictionary<float, FontInstance> _scaledData = new();
+    private readonly Dictionary<float, FontInstance> _instances = new();
 
     internal uint FontDpi
     {
@@ -74,17 +74,17 @@ internal sealed class FontInstanceHandle(IClyde clyde, Library library, FontFace
 
     public void ClearSizeData()
     {
-        foreach (var scaleData in _scaledData)
+        foreach (var instance in _instances.Values)
         {
-            foreach (var ownedTexture in scaleData.Value.AtlasTextures)
+            foreach (var ownedTexture in instance.AtlasTextures)
             {
                 ownedTexture.Dispose();
             }
 
-            scaleData.Value.Stroker.Dispose();
+            instance.Stroker.Dispose();
         }
 
-        _scaledData.Clear();
+        _instances.Clear();
     }
 
     public bool TryGetGlyph(
@@ -183,7 +183,7 @@ internal sealed class FontInstanceHandle(IClyde clyde, Library library, FontFace
 
     private FontInstance GetScaleDatum(float scale)
     {
-        if (_scaledData.TryGetValue(scale, out var datum))
+        if (_instances.TryGetValue(scale, out var datum))
         {
             return datum;
         }
@@ -194,7 +194,7 @@ internal sealed class FontInstanceHandle(IClyde clyde, Library library, FontFace
     public FontInstance CreateFontInstance(FontInstanceHandle instanceHandle, float scale)
     {
         var instance = new FontInstance(instanceHandle, scale);
-        _scaledData.Add(scale, instance);
+        _instances.Add(scale, instance);
         return instance;
     }
 
