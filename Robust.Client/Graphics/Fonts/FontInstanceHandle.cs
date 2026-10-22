@@ -14,7 +14,6 @@ internal sealed class FontInstanceHandle(IClyde clyde, Library library, FontFace
     private readonly IClyde _clyde = clyde;
     private readonly Library _library = library;
 
-    private const float FreeType26Dot6Scale = 64f;
     private const int SheetWidth = 256;
     private const int SheetHeight = 256;
 
@@ -67,8 +66,8 @@ internal sealed class FontInstanceHandle(IClyde clyde, Library library, FontFace
             return false;
         }
 
-        var scaled = GetScaleDatum(scale);
-        var glyphInfo = scaled.EnsureGlyphCached(scale, glyph);
+        var instance = GetInstance(scale);
+        var glyphInfo = instance.EnsureGlyphCached(scale, glyph);
         metrics = glyphInfo.Metrics;
         texture = glyphInfo.Texture;
         outlinedGlyph = null;
@@ -82,7 +81,7 @@ internal sealed class FontInstanceHandle(IClyde clyde, Library library, FontFace
         if (radius <= 0)
             return true;
 
-        var outlinedInfo = scaled.EnsureOutlinedGlyphCached(scale, glyph, radius);
+        var outlinedInfo = instance.EnsureOutlinedGlyphCached(scale, glyph, radius);
         if (outlinedInfo.Texture != null)
             outlinedGlyph = new OutlinedGlyph(outlinedInfo.Texture, outlinedInfo.Left, outlinedInfo.Top);
 
@@ -103,16 +102,7 @@ internal sealed class FontInstanceHandle(IClyde clyde, Library library, FontFace
         if (glyph == 0)
             return null;
 
-        var radius = (int)MathF.Round(thickness * scale * FreeType26Dot6Scale);
-        if (radius <= 0)
-            return null;
-
-        var scaled = GetScaleDatum(scale);
-        var info = scaled.EnsureOutlinedGlyphCached(scale, glyph, radius);
-        if (info.Texture == null)
-            return null;
-
-        return new OutlinedGlyph(info.Texture, info.Left, info.Top);
+        return GetInstance(scale).GetOutlinedChar(glyph, scale, thickness);
     }
 
     public CharMetrics? GetCharMetrics(Rune codePoint, float scale)
@@ -122,29 +112,29 @@ internal sealed class FontInstanceHandle(IClyde clyde, Library library, FontFace
 
     public int GetAscent(float scale)
     {
-        var scaled = GetScaleDatum(scale);
-        return scaled.Ascent;
+        var instance = GetInstance(scale);
+        return instance.Ascent;
     }
 
     public int GetDescent(float scale)
     {
-        var scaled = GetScaleDatum(scale);
-        return scaled.Descent;
+        var instance = GetInstance(scale);
+        return instance.Descent;
     }
 
     public int GetHeight(float scale)
     {
-        var scaled = GetScaleDatum(scale);
-        return scaled.Height;
+        var instance = GetInstance(scale);
+        return instance.Height;
     }
 
     public int GetLineHeight(float scale)
     {
-        var scaled = GetScaleDatum(scale);
-        return scaled.LineHeight;
+        var instance = GetInstance(scale);
+        return instance.LineHeight;
     }
 
-    private FontInstance GetScaleDatum(float scale)
+    private FontInstance GetInstance(float scale)
     {
         if (_instances.TryGetValue(scale, out var datum))
         {

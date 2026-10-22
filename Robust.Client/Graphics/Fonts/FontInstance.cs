@@ -13,6 +13,8 @@ internal sealed class FontInstance
 {
     private readonly FontInstanceHandle _instanceHandle;
 
+    private const float FreeType26Dot6Scale = 64f;
+
     public FontInstance(FontInstanceHandle handle, float scale)
     {
         var ftFace = handle._faceHandle.Face;
@@ -212,6 +214,21 @@ internal sealed class FontInstance
         }
 
         return bitmapImage;
+    }
+
+
+
+    public OutlinedGlyph? GetOutlinedChar(uint glyph, float scale, float thickness)
+    {
+        var radius = (int)MathF.Round(thickness * scale * FreeType26Dot6Scale);
+        if (radius <= 0)
+            return null;
+
+        var info = EnsureOutlinedGlyphCached(scale, glyph, radius);
+        if (info.Texture == null)
+            return null;
+
+        return new OutlinedGlyph(info.Texture, info.Left, info.Top);
     }
 }
 
