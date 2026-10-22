@@ -107,44 +107,39 @@ internal sealed class FontInstanceHandle(IClyde clyde, Library library, FontFace
 
     public CharMetrics? GetCharMetrics(Rune codePoint, float scale)
     {
-        return TryGetGlyph(codePoint, scale, 0, out var metrics, out _, out _) ? metrics : null;
+        return TryGetGlyph(codePoint, scale, 0, out var metrics, out _, out _)
+            ? metrics
+            : null;
     }
 
     public int GetAscent(float scale)
     {
-        var instance = GetInstance(scale);
-        return instance.Ascent;
+        return GetInstance(scale).Ascent;
     }
 
     public int GetDescent(float scale)
     {
-        var instance = GetInstance(scale);
-        return instance.Descent;
+        return GetInstance(scale).Descent;
     }
 
     public int GetHeight(float scale)
     {
-        var instance = GetInstance(scale);
-        return instance.Height;
+        return GetInstance(scale).Height;
     }
 
     public int GetLineHeight(float scale)
     {
-        var instance = GetInstance(scale);
-        return instance.LineHeight;
+        return GetInstance(scale).LineHeight;
     }
 
     private FontInstance GetInstance(float scale)
     {
-        if (_instances.TryGetValue(scale, out var datum))
-        {
-            return datum;
-        }
-
-        return CreateFontInstance(this, scale);
+        return _instances.TryGetValue(scale, out var instance)
+            ? instance
+            : CreateFontInstance(this, scale);
     }
 
-    public FontInstance CreateFontInstance(FontInstanceHandle instanceHandle, float scale)
+    private FontInstance CreateFontInstance(FontInstanceHandle instanceHandle, float scale)
     {
         var instance = new FontInstance(instanceHandle, scale);
         _instances.Add(scale, instance);
