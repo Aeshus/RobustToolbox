@@ -244,3 +244,6 @@ internal sealed class GlyphInfo
     public CharMetrics Metrics;
     public AtlasTexture? Texture;
 }
+
+internal readonly record struct OutlinedGlyph(Texture Texture, int Left, int Top);
+

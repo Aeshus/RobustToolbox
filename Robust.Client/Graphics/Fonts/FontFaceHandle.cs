@@ -14,6 +14,7 @@ internal sealed class FontFaceHandle(IClyde clyde, Library library, Face face, I
 
     internal Face Face { get; } = face;
 
+    // 0 is a sentinel value for failure
     public uint GetGlyphIndex(Rune chr)
     {
         if (_glyphIndexCache.TryGetValue(chr, out var glyph))

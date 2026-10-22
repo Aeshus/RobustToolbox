@@ -6,8 +6,6 @@ using SharpFont;
 
 namespace Robust.Client.Graphics.Fonts;
 
-internal readonly record struct OutlinedGlyph(Texture Texture, int Left, int Top);
-
 [PublicAPI]
 internal sealed class FontInstanceHandle(IClyde clyde, Library library, FontFaceHandle faceHandle, int size)
 {
