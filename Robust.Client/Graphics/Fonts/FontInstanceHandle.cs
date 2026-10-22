@@ -72,19 +72,11 @@ internal sealed class FontInstanceHandle(IClyde clyde, Library library, FontFace
         texture = glyphInfo.Texture;
         outlinedGlyph = null;
 
-        // An outline is never rendered without the normal glyph, so avoid generating or
-        // looking up outline data when the glyph has no bitmap.
+        // Don't render the outline character unless necessary
         if (texture == null || outlineThickness <= 0)
             return true;
 
-        var radius = (int)MathF.Round(outlineThickness * scale * FreeType26Dot6Scale);
-        if (radius <= 0)
-            return true;
-
-        var outlinedInfo = instance.EnsureOutlinedGlyphCached(scale, glyph, radius);
-        if (outlinedInfo.Texture != null)
-            outlinedGlyph = new OutlinedGlyph(outlinedInfo.Texture, outlinedInfo.Left, outlinedInfo.Top);
-
+        outlinedGlyph = instance.GetOutlinedChar(glyph, scale, outlineThickness);
         return true;
     }
 
