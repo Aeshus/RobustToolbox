@@ -69,6 +69,7 @@ internal sealed partial class FontManager : IFontManagerInternal, IPostInjectIni
     private FontFaceHandle CreateFaceHandle(Face face, IFontMemoryHandle memoryHandle)
     {
         var handle = new FontFaceHandle(_clyde, _library, face, memoryHandle);
+        handle.FontDpi = _baseFontDpi;
         _loadedInstances.Add(handle);
         return handle;
     }
@@ -76,6 +77,11 @@ internal sealed partial class FontManager : IFontManagerInternal, IPostInjectIni
     void IFontManagerInternal.SetFontDpi(uint fontDpi)
     {
         _baseFontDpi = fontDpi;
+
+        foreach (var face in _loadedInstances)
+        {
+            face.FontDpi = fontDpi;
+        }
     }
 
     public void ClearFontCache()
