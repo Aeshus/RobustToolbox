@@ -35,7 +35,7 @@ internal sealed partial class FontManager : IFontManagerInternal, IPostInjectIni
 
     public FontFaceHandle Load(IFontMemoryHandle memory, int index = 0)
     {
-        return CreateFaceHandle(LoadFace(memory, 0), memory);
+        return CreateFaceHandle(LoadFace(memory, index), memory);
     }
 
     public FontFaceHandle LoadWithPostscriptName(IFontMemoryHandle memory, string postscriptName)
