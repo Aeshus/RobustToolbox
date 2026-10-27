@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Text;
 using SharpFont;
@@ -6,6 +7,8 @@ namespace Robust.Client.Graphics.Fonts;
 
 internal sealed class FontFaceHandle(IClyde clyde, Library library, Face face, IFontMemoryHandle memoryHandle)
 {
+    private const float FreeType26Dot6Scale = 64f;
+
     // Keep this alive to avoid it being GC'd.
     // ReSharper disable once NotAccessedField.Local
     private readonly IFontMemoryHandle _memoryHandle = memoryHandle;
@@ -79,7 +82,7 @@ internal sealed class FontFaceHandle(IClyde clyde, Library library, Face face, I
             return false;
 
         var instance = GetInstance(size, scale);
-        var glyphInfo = instance.EnsureGlyphCached(scale, glyph);
+        var glyphInfo = instance.EnsureGlyphCached(glyph);
         metrics = glyphInfo.Metrics;
         texture = glyphInfo.Texture;
 
@@ -87,7 +90,8 @@ internal sealed class FontFaceHandle(IClyde clyde, Library library, Face face, I
         if (texture == null || outlineThickness <= 0)
             return true;
 
-        outlinedGlyph = instance.GetOutlinedChar(glyph, scale, outlineThickness);
+        outlinedGlyph =
+            instance.GetOutlinedChar(glyph, (int)MathF.Round(outlineThickness * scale * FreeType26Dot6Scale));
         return true;
     }
 
@@ -111,7 +115,7 @@ internal sealed class FontFaceHandle(IClyde clyde, Library library, Face face, I
         if (_cachedInstances.TryGetValue((size, scale), out var instance))
             return instance;
 
-        instance = new FontInstance(this, size, scale);
+        instance = new FontInstance(Clyde, Library, Face, size, (uint)(scale * FontDpi));
         _cachedInstances.Add((size, scale), instance);
         return instance;
     }

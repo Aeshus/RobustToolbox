@@ -11,17 +11,17 @@ namespace Robust.Client.Graphics.Fonts;
 
 internal sealed class FontInstance
 {
-    private readonly FontFaceHandle _faceHandle;
+    private readonly IClyde _clyde;
+    private readonly Face _face;
     private readonly int _size;
 
     private const int SheetWidth = 256;
     private const int SheetHeight = 256;
-    private const float FreeType26Dot6Scale = 64f;
 
-    public FontInstance(FontFaceHandle handle, int size, float scale)
+    public FontInstance(IClyde clyde, Library library, Face face, int size, uint verticalResolution)
     {
-        var ftFace = handle.Face;
-        VerticalResolution = (uint)(scale * handle.FontDpi);
+        var ftFace = face;
+        VerticalResolution = verticalResolution;
         ftFace.SetCharSize(0, size, 0, VerticalResolution);
 
         Ascent = ftFace.Size.Metrics.Ascender.ToInt32();
@@ -29,8 +29,9 @@ internal sealed class FontInstance
         LineHeight = ftFace.Size.Metrics.Height.ToInt32();
         Height = Ascent + Descent;
 
-        Stroker = new Stroker(handle.Library);
-        _faceHandle = handle;
+        Stroker = new Stroker(library);
+        _clyde = clyde;
+        _face = face;
         _size = size;
     }
 
@@ -49,7 +50,6 @@ internal sealed class FontInstance
     public int CurSheetMaxY;
 
     internal GlyphInfo EnsureGlyphCached(
-        float scale,
         uint glyph)
     {
         // Check if already cached.
@@ -58,7 +58,7 @@ internal sealed class FontInstance
 
         info = new GlyphInfo();
 
-        var face = _faceHandle.Face;
+        var face = _face;
         face.SetCharSize(0, _size, 0, VerticalResolution);
         face.LoadGlyph(glyph, LoadFlags.Default, LoadTarget.Normal);
         face.Glyph.RenderGlyph(RenderMode.Normal);
@@ -78,14 +78,13 @@ internal sealed class FontInstance
     }
 
     internal OutlinedGlyphInfo EnsureOutlinedGlyphCached(
-        float scale,
         uint glyph,
         int radius)
     {
         if (OutlinedGlyphInfos.TryGetValue((glyph, radius), out var info))
             return info;
 
-        var face = _faceHandle.Face;
+        var face = _face;
         face.SetCharSize(0, _size, 0, VerticalResolution);
         face.LoadGlyph(glyph, LoadFlags.Default, LoadTarget.Normal);
 
@@ -184,8 +183,8 @@ internal sealed class FontInstance
 
         OwnedTexture GenSheet()
         {
-            var face = _faceHandle.Face;
-            var texture = _faceHandle.Clyde.CreateBlankTexture<A8>(
+            var face = _face;
+            var texture = _clyde.CreateBlankTexture<A8>(
                 (SheetWidth, SheetHeight),
                 $"font-{face.FamilyName}-{_size}-{VerticalResolution}-sheet{AtlasTextures.Count}");
             AtlasTextures.Add(texture);
@@ -222,13 +221,12 @@ internal sealed class FontInstance
 
 
 
-    public OutlinedGlyph? GetOutlinedChar(uint glyph, float scale, float thickness)
+    public OutlinedGlyph? GetOutlinedChar(uint glyph, int radius)
     {
-        var radius = (int)MathF.Round(thickness * scale * FreeType26Dot6Scale);
         if (radius <= 0)
             return null;
 
-        var info = EnsureOutlinedGlyphCached(scale, glyph, radius);
+        var info = EnsureOutlinedGlyphCached(glyph, radius);
         if (info.Texture == null)
             return null;
 
