@@ -98,25 +98,13 @@ internal sealed class FontFaceHandle(IClyde clyde, Library library, Face face, I
             : null;
     }
 
-    public int GetAscent(int size, float scale)
-    {
-        return GetInstance(size, scale).Ascent;
-    }
+    public int GetAscent(int size, float scale) => GetInstance(size, scale).Ascent;
 
-    public int GetDescent(int size, float scale)
-    {
-        return GetInstance(size, scale).Descent;
-    }
+    public int GetDescent(int size, float scale) => GetInstance(size, scale).Descent;
 
-    public int GetHeight(int size, float scale)
-    {
-        return GetInstance(size, scale).Height;
-    }
+    public int GetHeight(int size, float scale) => GetInstance(size, scale).Height;
 
-    public int GetLineHeight(int size, float scale)
-    {
-        return GetInstance(size, scale).LineHeight;
-    }
+    public int GetLineHeight(int size, float scale) => GetInstance(size, scale).LineHeight;
 
     private FontInstance GetInstance(int size, float scale)
     {
@@ -128,4 +116,3 @@ internal sealed class FontFaceHandle(IClyde clyde, Library library, Face face, I
         return instance;
     }
 }
-
