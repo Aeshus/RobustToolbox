@@ -78,11 +78,6 @@ internal sealed partial class FontManager : IFontManagerInternal, IPostInjectIni
         _baseFontDpi = fontDpi;
     }
 
-    public FontInstanceHandle MakeInstance(FontFaceHandle handle, int size)
-    {
-        return handle.GetInstance(size);
-    }
-
     public void ClearFontCache()
     {
         foreach (var fontInstance in _loadedInstances)

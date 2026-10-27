@@ -3,7 +3,6 @@ using System.Numerics;
 using System.Text;
 using Robust.Client.Graphics.Fonts;
 using Robust.Client.ResourceManagement;
-using Robust.Shared.IoC;
 using Robust.Shared.Maths;
 
 namespace Robust.Client.Graphics
@@ -132,24 +131,24 @@ namespace Robust.Client.Graphics
     {
         public int Size { get; }
 
-        internal FontInstanceHandle Handle { get; }
+        internal FontFaceHandle Handle { get; }
 
         public VectorFont(FontResource res, int size)
         {
             Size = size;
-            Handle = IoCManager.Resolve<IFontManagerInternal>().MakeInstance(res.FontFaceHandle, size);
+            Handle = res.FontFaceHandle;
         }
 
-        internal VectorFont(FontInstanceHandle handle, int size)
+        internal VectorFont(FontFaceHandle handle, int size)
         {
             Size = size;
             Handle = handle;
         }
 
-        public override int GetAscent(float scale) => Handle.GetAscent(scale);
-        public override int GetHeight(float scale) => Handle.GetHeight(scale);
-        public override int GetDescent(float scale) => Handle.GetDescent(scale);
-        public override int GetLineHeight(float scale) => Handle.GetLineHeight(scale);
+        public override int GetAscent(float scale) => Handle.GetAscent(Size, scale);
+        public override int GetHeight(float scale) => Handle.GetHeight(Size, scale);
+        public override int GetDescent(float scale) => Handle.GetDescent(Size, scale);
+        public override int GetLineHeight(float scale) => Handle.GetLineHeight(Size, scale);
 
         public override float DrawChar(DrawingHandleBase handle, Rune rune, Vector2 baseline, float scale, Color color, bool fallback=true)
         {
@@ -189,13 +188,13 @@ namespace Robust.Client.Graphics
             out Texture? texture,
             out OutlinedGlyph? outlinedGlyph)
         {
-            if (Handle.TryGetGlyph(rune, scale, outlineThickness, out metrics, out texture, out outlinedGlyph))
+            if (Handle.TryGetGlyph(Size, rune, scale, outlineThickness, out metrics, out texture, out outlinedGlyph))
                 return true;
 
             if (!fallback || Rune.IsWhiteSpace(rune))
                 return false;
 
-            return Handle.TryGetGlyph(new Rune('�'), scale, outlineThickness, out metrics, out texture, out outlinedGlyph);
+            return Handle.TryGetGlyph(Size, new Rune('�'), scale, outlineThickness, out metrics, out texture, out outlinedGlyph);
         }
 
         private static void DrawGlyph(DrawingHandleBase handle, Texture texture, Vector2 position, Color color)
@@ -208,9 +207,9 @@ namespace Robust.Client.Graphics
 
         public override CharMetrics? GetCharMetrics(Rune rune, float scale, bool fallback=true)
         {
-            var metrics = Handle.GetCharMetrics(rune, scale);
+            var metrics = Handle.GetCharMetrics(Size, rune, scale);
             if (metrics == null && !Rune.IsWhiteSpace(rune) && fallback)
-                return Handle.GetCharMetrics(new Rune('�'), scale);
+                return Handle.GetCharMetrics(Size, new Rune('�'), scale);
             return metrics;
         }
     }

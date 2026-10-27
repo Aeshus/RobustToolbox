@@ -11,23 +11,27 @@ namespace Robust.Client.Graphics.Fonts;
 
 internal sealed class FontInstance
 {
-    private readonly FontInstanceHandle _instanceHandle;
+    private readonly FontFaceHandle _faceHandle;
+    private readonly int _size;
 
+    private const int SheetWidth = 256;
+    private const int SheetHeight = 256;
     private const float FreeType26Dot6Scale = 64f;
 
-    public FontInstance(FontInstanceHandle handle, float scale)
+    public FontInstance(FontFaceHandle handle, int size, float scale)
     {
-        var ftFace = handle._faceHandle.Face;
+        var ftFace = handle.Face;
         VerticalResolution = (uint)(scale * handle.FontDpi);
-        ftFace.SetCharSize(0, handle.Size, 0, VerticalResolution);
+        ftFace.SetCharSize(0, size, 0, VerticalResolution);
 
         Ascent = ftFace.Size.Metrics.Ascender.ToInt32();
         Descent = -ftFace.Size.Metrics.Descender.ToInt32();
         LineHeight = ftFace.Size.Metrics.Height.ToInt32();
         Height = Ascent + Descent;
 
-        Stroker = new Stroker(handle._library);
-        _instanceHandle = handle;
+        Stroker = new Stroker(handle.Library);
+        _faceHandle = handle;
+        _size = size;
     }
 
     public readonly List<OwnedTexture> AtlasTextures = new();
@@ -54,8 +58,8 @@ internal sealed class FontInstance
 
         info = new GlyphInfo();
 
-        var face = _instanceHandle._faceHandle.Face;
-        face.SetCharSize(0, _instanceHandle.Size, 0, VerticalResolution);
+        var face = _faceHandle.Face;
+        face.SetCharSize(0, _size, 0, VerticalResolution);
         face.LoadGlyph(glyph, LoadFlags.Default, LoadTarget.Normal);
         face.Glyph.RenderGlyph(RenderMode.Normal);
 
@@ -81,8 +85,8 @@ internal sealed class FontInstance
         if (OutlinedGlyphInfos.TryGetValue((glyph, radius), out var info))
             return info;
 
-        var face = _instanceHandle._faceHandle.Face;
-        face.SetCharSize(0, _instanceHandle.Size, 0, VerticalResolution);
+        var face = _faceHandle.Face;
+        face.SetCharSize(0, _size, 0, VerticalResolution);
         face.LoadGlyph(glyph, LoadFlags.Default, LoadTarget.Normal);
 
         using var sourceGlyph = face.Glyph.GetGlyph();
@@ -180,10 +184,10 @@ internal sealed class FontInstance
 
         OwnedTexture GenSheet()
         {
-            var face = _instanceHandle._faceHandle.Face;
-            var texture = _instanceHandle._clyde.CreateBlankTexture<A8>(
-                (FontInstanceHandle.SheetWidth, FontInstanceHandle.SheetHeight),
-                $"font-{face.FamilyName}-{_instanceHandle.Size}-{VerticalResolution}-sheet{AtlasTextures.Count}");
+            var face = _faceHandle.Face;
+            var texture = _faceHandle.Clyde.CreateBlankTexture<A8>(
+                (SheetWidth, SheetHeight),
+                $"font-{face.FamilyName}-{_size}-{VerticalResolution}-sheet{AtlasTextures.Count}");
             AtlasTextures.Add(texture);
             return texture;
         }

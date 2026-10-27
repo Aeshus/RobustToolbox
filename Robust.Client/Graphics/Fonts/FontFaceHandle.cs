@@ -9,9 +9,11 @@ internal sealed class FontFaceHandle(IClyde clyde, Library library, Face face, I
     // Keep this alive to avoid it being GC'd.
     // ReSharper disable once NotAccessedField.Local
     private readonly IFontMemoryHandle _memoryHandle = memoryHandle;
-    private readonly Dictionary<int, FontInstanceHandle> _cachedInstances = new();
+    private readonly Dictionary<(int, float), FontInstance> _cachedInstances = new();
     private readonly Dictionary<Rune, uint> _glyphIndexCache = new();
 
+    internal IClyde Clyde { get; } = clyde;
+    internal Library Library { get; } = library;
     internal Face Face { get; } = face;
 
     // 0 is a sentinel value for failure
@@ -30,23 +32,19 @@ internal sealed class FontFaceHandle(IClyde clyde, Library library, Face face, I
         return index;
     }
 
-    public FontInstanceHandle GetInstance(int size)
-    {
-        if (_cachedInstances.TryGetValue(size, out var instance))
-            return instance;
-
-        instance = new FontInstanceHandle(clyde, library, this, size);
-        instance.FontDpi = FontDpi;
-        _cachedInstances.Add(size, instance);
-        return instance;
-    }
-
     public void ClearSizeData()
     {
-        foreach (var handle in _cachedInstances.Values)
+        foreach (var instance in _cachedInstances.Values)
         {
-            handle.ClearSizeData();
+            foreach (var ownedTexture in instance.AtlasTextures)
+            {
+                ownedTexture.Dispose();
+            }
+
+            instance.Stroker.Dispose();
         }
+
+        _cachedInstances.Clear();
     }
 
     public uint FontDpi
@@ -57,14 +55,77 @@ internal sealed class FontFaceHandle(IClyde clyde, Library library, Face face, I
             if (field == value)
                 return;
 
-            foreach (var handle in _cachedInstances.Values)
-            {
-                handle.FontDpi = value;
-            }
-
+            ClearSizeData();
             field = value;
         }
     }
 
+    public bool TryGetGlyph(
+        int size,
+        Rune codePoint,
+        float scale,
+        float outlineThickness,
+        out CharMetrics metrics,
+        out Texture? texture,
+        out OutlinedGlyph? outlinedGlyph)
+    {
+        metrics = default;
+        texture = null;
+        outlinedGlyph = null;
+
+        var glyph = GetGlyphIndex(codePoint);
+
+        if (glyph == 0)
+            return false;
+
+        var instance = GetInstance(size, scale);
+        var glyphInfo = instance.EnsureGlyphCached(scale, glyph);
+        metrics = glyphInfo.Metrics;
+        texture = glyphInfo.Texture;
+
+        // Don't render the outline character unless necessary
+        if (texture == null || outlineThickness <= 0)
+            return true;
+
+        outlinedGlyph = instance.GetOutlinedChar(glyph, scale, outlineThickness);
+        return true;
+    }
+
+    public CharMetrics? GetCharMetrics(int size, Rune codePoint, float scale)
+    {
+        return TryGetGlyph(size, codePoint, scale, 0, out var metrics, out _, out _)
+            ? metrics
+            : null;
+    }
+
+    public int GetAscent(int size, float scale)
+    {
+        return GetInstance(size, scale).Ascent;
+    }
+
+    public int GetDescent(int size, float scale)
+    {
+        return GetInstance(size, scale).Descent;
+    }
+
+    public int GetHeight(int size, float scale)
+    {
+        return GetInstance(size, scale).Height;
+    }
+
+    public int GetLineHeight(int size, float scale)
+    {
+        return GetInstance(size, scale).LineHeight;
+    }
+
+    private FontInstance GetInstance(int size, float scale)
+    {
+        if (_cachedInstances.TryGetValue((size, scale), out var instance))
+            return instance;
+
+        instance = new FontInstance(this, size, scale);
+        _cachedInstances.Add((size, scale), instance);
+        return instance;
+    }
 }
 

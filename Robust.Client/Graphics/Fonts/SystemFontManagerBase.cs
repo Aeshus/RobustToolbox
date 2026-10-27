@@ -92,9 +92,7 @@ internal abstract class SystemFontManagerBase
         {
             var handle = GetFaceHandle();
 
-            var instance = parent.FontManager.MakeInstance(handle, size);
-
-            return new VectorFont(instance, size);
+            return new VectorFont(handle, size);
         }
 
         private FontFaceHandle GetFaceHandle()
