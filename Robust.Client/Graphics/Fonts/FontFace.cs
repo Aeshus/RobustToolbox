@@ -5,7 +5,7 @@ using SharpFont;
 
 namespace Robust.Client.Graphics.Fonts;
 
-internal sealed class FontFaceHandle(IClyde clyde, Library library, Face face, IFontMemoryHandle memoryHandle)
+internal sealed class FontFace(IClyde clyde, Library library, Face face, IFontMemoryHandle memoryHandle)
 {
     private const float FreeType26Dot6Scale = 64f;
     private readonly Dictionary<(int, float), FontInstance> _cachedInstances = new();

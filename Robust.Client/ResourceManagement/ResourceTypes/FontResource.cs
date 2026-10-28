@@ -9,7 +9,7 @@ namespace Robust.Client.ResourceManagement
 {
     public sealed class FontResource : BaseResource
     {
-        internal FontFaceHandle FontFaceHandle { get; private set; } = default!;
+        internal FontFace FontFace { get; private set; } = default!;
 
         public override void Load(IDependencyCollection dependencies, ResPath path)
         {
@@ -21,7 +21,7 @@ namespace Robust.Client.ResourceManagement
 
             using (stream)
             {
-                FontFaceHandle = dependencies.Resolve<IFontManagerInternal>().Load(stream);
+                FontFace = dependencies.Resolve<IFontManagerInternal>().Load(stream);
             }
         }
 

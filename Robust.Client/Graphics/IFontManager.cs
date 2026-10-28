@@ -11,15 +11,15 @@ public interface IFontManager
 
 internal interface IFontManagerInternal : IFontManager
 {
-    FontFaceHandle Load(Stream stream, int index = 0);
-    FontFaceHandle Load(IFontMemoryHandle memory, int index = 0);
+    FontFace Load(Stream stream, int index = 0);
+    FontFace Load(IFontMemoryHandle memory, int index = 0);
 
     /// <summary>
     /// Load a specified font in a font collection.
     /// </summary>
     /// <param name="memory">Memory for the entire font collection.</param>
     /// <param name="postscriptName">The postscript name of the font to load.</param>
-    FontFaceHandle LoadWithPostscriptName(IFontMemoryHandle memory, string postscriptName);
+    FontFace LoadWithPostscriptName(IFontMemoryHandle memory, string postscriptName);
 
     uint FontDpi { set; }
 }

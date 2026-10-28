@@ -131,15 +131,15 @@ namespace Robust.Client.Graphics
     {
         public int Size { get; }
 
-        internal FontFaceHandle Handle { get; }
+        internal FontFace Handle { get; }
 
         public VectorFont(FontResource res, int size)
         {
             Size = size;
-            Handle = res.FontFaceHandle;
+            Handle = res.FontFace;
         }
 
-        internal VectorFont(FontFaceHandle handle, int size)
+        internal VectorFont(FontFace handle, int size)
         {
             Size = size;
             Handle = handle;

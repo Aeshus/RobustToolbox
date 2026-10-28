@@ -220,7 +220,7 @@ internal sealed unsafe class SystemFontManagerFontconfig : SystemFontManagerBase
         };
     }
 
-    protected override FontFaceHandle LoadFontFace(BaseHandle handle)
+    protected override FontFace LoadFontFace(BaseHandle handle)
     {
         var cast = (Handle)handle;
 
