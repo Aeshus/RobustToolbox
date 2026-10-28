@@ -25,7 +25,7 @@ internal sealed class FontInstance : IDisposable
 
     private readonly List<OwnedTexture> _atlasTextures = new();
     private readonly Dictionary<uint, GlyphInfo> _glyphInfos = new();
-    private readonly Dictionary<(uint Glyph, int Radius), OutlinedGlyphInfo> _outlinedGlyphInfos = new();
+    private readonly Dictionary<(uint Glyph, int Radius), OutlinedGlyph?> _outlinedGlyphs = new();
     private readonly int _size;
     private readonly uint _verticalResolution;
 
@@ -69,8 +69,7 @@ internal sealed class FontInstance : IDisposable
         var info = RenderGlyph(glyph);
         metrics = info.Metrics;
         texture = info.Texture;
-
-        outlinedGlyph = texture != null && outlineRadius > 0 ? RenderGlyphWithOutline(glyph, outlineRadius) : null;
+        outlinedGlyph = RenderOutlineGlyph(glyph, outlineRadius);
     }
 
     private GlyphInfo RenderGlyph(uint glyph)
@@ -100,32 +99,31 @@ internal sealed class FontInstance : IDisposable
         return info;
     }
 
-    private OutlinedGlyphInfo RenderOutlineGlyph(uint glyph, int radius)
+    private OutlinedGlyph? RenderOutlineGlyph(uint glyph, int radius)
     {
-        if (_outlinedGlyphInfos.TryGetValue((glyph, radius), out var info))
+        if (radius <= 0)
+            return null;
+
+        if (_outlinedGlyphs.TryGetValue((glyph, radius), out var info))
             return info;
 
-        var face = _face;
-        face.SetCharSize(0, _size, 0, _verticalResolution);
-        face.LoadGlyph(glyph, LoadFlags.Default, LoadTarget.Normal);
+        _face.SetCharSize(0, _size, 0, _verticalResolution);
+        _face.LoadGlyph(glyph, LoadFlags.Default, LoadTarget.Normal);
 
-        using var sourceGlyph = face.Glyph.GetGlyph();
-        var stroker = _stroker;
-        stroker.Set(radius, StrokerLineCap.Round, StrokerLineJoin.Round, Fixed16Dot16.FromInt32(0));
-        stroker.Rewind();
-        using var strokedGlyph = sourceGlyph.StrokeBorder(stroker, false, true);
+        using var sourceGlyph = _face.Glyph.GetGlyph();
+        _stroker.Set(radius, StrokerLineCap.Round, StrokerLineJoin.Round, Fixed16Dot16.FromInt32(0));
+        _stroker.Rewind();
+        using var strokedGlyph = sourceGlyph.StrokeBorder(_stroker, false, true);
         strokedGlyph.ToBitmap(RenderMode.Normal, new FTVector26Dot6(0, 0), true);
 
         var bitmapGlyph = strokedGlyph.ToBitmapGlyph();
         using var bitmap = bitmapGlyph.Bitmap;
-        info = new OutlinedGlyphInfo
-        {
-            Texture = SaveBitmap(bitmap),
-            Left = bitmapGlyph.Left,
-            Top = bitmapGlyph.Top,
-        };
+        var texture = SaveBitmap(bitmap);
+        info = texture != null
+            ? new OutlinedGlyph(texture, bitmapGlyph.Left, bitmapGlyph.Top)
+            : null;
 
-        _outlinedGlyphInfos.Add((glyph, radius), info);
+        _outlinedGlyphs.Add((glyph, radius), info);
         return info;
     }
 
@@ -238,25 +236,6 @@ internal sealed class FontInstance : IDisposable
 
         return bitmapImage;
     }
-
-    private OutlinedGlyph? RenderGlyphWithOutline(uint glyph, int radius)
-    {
-        if (radius <= 0)
-            return null;
-
-        var info = RenderOutlineGlyph(glyph, radius);
-        if (info.Texture == null)
-            return null;
-
-        return new OutlinedGlyph(info.Texture, info.Left, info.Top);
-    }
-}
-
-internal sealed class OutlinedGlyphInfo
-{
-    public AtlasTexture? Texture;
-    public int Left;
-    public int Top;
 }
 
 internal sealed class GlyphInfo
