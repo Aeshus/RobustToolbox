@@ -158,7 +158,7 @@ namespace Robust.Client
 
             _loadscr.LoadingStep(_taskManager.Initialize, _taskManager);
             _loadscr.LoadingStep(_parallelMgr.Initialize, _parallelMgr);
-            _fontManager.SetFontDpi((uint)_configurationManager.GetCVar(CVars.DisplayFontDpi));
+            _fontManager.FontDpi = (uint)_configurationManager.GetCVar(CVars.DisplayFontDpi);
 
             _loadscr.LoadingStep(_systemFontManager.Initialize, "System fonts");
 

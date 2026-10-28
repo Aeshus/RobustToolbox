@@ -14,7 +14,23 @@ internal sealed partial class FontManager : IFontManagerInternal, IPostInjectIni
 
     private ISawmill _sawmill = default!;
 
-    private uint _baseFontDpi = 96;
+    public uint FontDpi
+    {
+        private get;
+        set
+        {
+            if (field == value)
+                return;
+
+            field = value;
+
+            foreach (var face in _loadedInstances)
+            {
+                face.FontDpi = value;
+            }
+        }
+    }
+
 
     private readonly Library _library = new();
 
@@ -69,19 +85,9 @@ internal sealed partial class FontManager : IFontManagerInternal, IPostInjectIni
     private FontFaceHandle CreateFaceHandle(Face face, IFontMemoryHandle memoryHandle)
     {
         var handle = new FontFaceHandle(_clyde, _library, face, memoryHandle);
-        handle.FontDpi = _baseFontDpi;
+        handle.FontDpi = FontDpi;
         _loadedInstances.Add(handle);
         return handle;
-    }
-
-    void IFontManagerInternal.SetFontDpi(uint fontDpi)
-    {
-        _baseFontDpi = fontDpi;
-
-        foreach (var face in _loadedInstances)
-        {
-            face.FontDpi = fontDpi;
-        }
     }
 
     public void ClearFontCache()

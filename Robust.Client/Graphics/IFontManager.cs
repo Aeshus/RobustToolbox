@@ -21,7 +21,7 @@ internal interface IFontManagerInternal : IFontManager
     /// <param name="postscriptName">The postscript name of the font to load.</param>
     FontFaceHandle LoadWithPostscriptName(IFontMemoryHandle memory, string postscriptName);
 
-    void SetFontDpi(uint fontDpi);
+    uint FontDpi { set; }
 }
 
 /// <summary>
