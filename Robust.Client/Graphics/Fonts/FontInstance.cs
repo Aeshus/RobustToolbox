@@ -59,8 +59,7 @@ internal sealed class FontInstance : IDisposable
         _stroker.Dispose();
     }
 
-    internal GlyphInfo EnsureGlyphCached(
-        uint glyph)
+    internal GlyphInfo RenderGlyph(uint glyph)
     {
         // Check if already cached.
         if (_glyphInfos.TryGetValue(glyph, out var info))
@@ -81,15 +80,13 @@ internal sealed class FontInstance : IDisposable
             glyphMetrics.Height.ToInt32());
 
         using var bitmap = face.Glyph.Bitmap;
-        info.Texture = CacheBitmap(bitmap);
+        info.Texture = SaveBitmap(bitmap);
 
         _glyphInfos.Add(glyph, info);
         return info;
     }
 
-    internal OutlinedGlyphInfo EnsureOutlinedGlyphCached(
-        uint glyph,
-        int radius)
+    internal OutlinedGlyphInfo RenderOutlineGlyph(uint glyph, int radius)
     {
         if (_outlinedGlyphInfos.TryGetValue((glyph, radius), out var info))
             return info;
@@ -109,7 +106,7 @@ internal sealed class FontInstance : IDisposable
         using var bitmap = bitmapGlyph.Bitmap;
         info = new OutlinedGlyphInfo
         {
-            Texture = CacheBitmap(bitmap),
+            Texture = SaveBitmap(bitmap),
             Left = bitmapGlyph.Left,
             Top = bitmapGlyph.Top,
         };
@@ -118,8 +115,7 @@ internal sealed class FontInstance : IDisposable
         return info;
     }
 
-    private AtlasTexture? CacheBitmap(
-        FTBitmap bitmap)
+    private AtlasTexture? SaveBitmap(FTBitmap bitmap)
     {
         if (bitmap.Pitch < 0)
             throw new NotImplementedException();
@@ -131,7 +127,7 @@ internal sealed class FontInstance : IDisposable
         switch (bitmap.PixelMode)
         {
             case PixelMode.Mono:
-                img = MonoBitMapToImage(bitmap);
+                img = MonoBitmapToImage(bitmap);
                 break;
             case PixelMode.Gray:
             {
@@ -202,7 +198,7 @@ internal sealed class FontInstance : IDisposable
         }
     }
 
-    private static Image<A8> MonoBitMapToImage(FTBitmap bitmap)
+    private static Image<A8> MonoBitmapToImage(FTBitmap bitmap)
     {
         DebugTools.Assert(bitmap.PixelMode == PixelMode.Mono);
         DebugTools.Assert(bitmap.Pitch > 0);
@@ -229,12 +225,12 @@ internal sealed class FontInstance : IDisposable
         return bitmapImage;
     }
 
-    public OutlinedGlyph? GetOutlinedChar(uint glyph, int radius)
+    public OutlinedGlyph? RenderGlyphWithOutline(uint glyph, int radius)
     {
         if (radius <= 0)
             return null;
 
-        var info = EnsureOutlinedGlyphCached(glyph, radius);
+        var info = RenderOutlineGlyph(glyph, radius);
         if (info.Texture == null)
             return null;
 

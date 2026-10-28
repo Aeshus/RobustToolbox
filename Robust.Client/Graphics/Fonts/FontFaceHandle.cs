@@ -77,7 +77,7 @@ internal sealed class FontFaceHandle(IClyde clyde, Library library, Face face, I
             return false;
 
         var instance = GetInstance(size, scale);
-        var glyphInfo = instance.EnsureGlyphCached(glyph);
+        var glyphInfo = instance.RenderGlyph(glyph);
         metrics = glyphInfo.Metrics;
         texture = glyphInfo.Texture;
 
@@ -86,7 +86,7 @@ internal sealed class FontFaceHandle(IClyde clyde, Library library, Face face, I
             return true;
 
         outlinedGlyph =
-            instance.GetOutlinedChar(glyph, (int)MathF.Round(outlineThickness * scale * FreeType26Dot6Scale));
+            instance.RenderGlyphWithOutline(glyph, (int)MathF.Round(outlineThickness * scale * FreeType26Dot6Scale));
         return true;
     }
 
