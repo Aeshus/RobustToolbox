@@ -15,11 +15,9 @@ internal sealed class FontFace(IClyde clyde, Library library, Face face, IFontMe
     // ReSharper disable once NotAccessedField.Local
     private readonly IFontMemoryHandle _memoryHandle = memoryHandle;
 
-    internal IClyde Clyde { get; } = clyde;
-    internal Library Library { get; } = library;
-    internal Face Face { get; } = face;
+    private Face Face { get; } = face;
 
-    public uint FontDpi
+    internal uint FontDpi
     {
         get;
         set
@@ -33,7 +31,7 @@ internal sealed class FontFace(IClyde clyde, Library library, Face face, IFontMe
     }
 
     // 0 is a sentinel value for failure
-    public uint GetGlyphIndex(Rune chr)
+    private uint GetGlyphIndex(Rune chr)
     {
         if (_glyphIndexCache.TryGetValue(chr, out var glyph))
         {
@@ -48,7 +46,7 @@ internal sealed class FontFace(IClyde clyde, Library library, Face face, IFontMe
         return index;
     }
 
-    public void ClearSizeData()
+    internal void ClearSizeData()
     {
         foreach (var instance in _cachedInstances.Values)
         {
@@ -58,7 +56,7 @@ internal sealed class FontFace(IClyde clyde, Library library, Face face, IFontMe
         _cachedInstances.Clear();
     }
 
-    public bool TryGetGlyph(
+    internal bool TryGetGlyph(
         int size,
         Rune codePoint,
         float scale,
@@ -82,19 +80,19 @@ internal sealed class FontFace(IClyde clyde, Library library, Face face, IFontMe
         return true;
     }
 
-    public CharMetrics? GetCharMetrics(int size, Rune codePoint, float scale)
+    internal CharMetrics? GetCharMetrics(int size, Rune codePoint, float scale)
     {
         return TryGetGlyph(size, codePoint, scale, 0, out var metrics, out _, out _)
             ? metrics
             : null;
     }
 
-    public FontInstance GetInstance(int size, float scale)
+    internal FontInstance GetInstance(int size, float scale)
     {
         if (_cachedInstances.TryGetValue((size, scale), out var instance))
             return instance;
 
-        instance = new FontInstance(Clyde, Library, Face, size, (uint)(scale * FontDpi));
+        instance = new FontInstance(clyde, library, Face, size, (uint)(scale * FontDpi));
         _cachedInstances.Add((size, scale), instance);
         return instance;
     }

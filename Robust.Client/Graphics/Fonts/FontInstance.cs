@@ -35,13 +35,12 @@ internal sealed class FontInstance : IDisposable
 
     public FontInstance(IClyde clyde, Library library, Face face, int size, uint verticalResolution)
     {
-        var ftFace = face;
         _verticalResolution = verticalResolution;
-        ftFace.SetCharSize(0, size, 0, _verticalResolution);
+        face.SetCharSize(0, size, 0, _verticalResolution);
 
-        Ascent = ftFace.Size.Metrics.Ascender.ToInt32();
-        Descent = -ftFace.Size.Metrics.Descender.ToInt32();
-        LineHeight = ftFace.Size.Metrics.Height.ToInt32();
+        Ascent = face.Size.Metrics.Ascender.ToInt32();
+        Descent = -face.Size.Metrics.Descender.ToInt32();
+        LineHeight = face.Size.Metrics.Height.ToInt32();
         Height = Ascent + Descent;
 
         _stroker = new Stroker(library);
@@ -74,7 +73,7 @@ internal sealed class FontInstance : IDisposable
         outlinedGlyph = texture != null && outlineRadius > 0 ? RenderGlyphWithOutline(glyph, outlineRadius) : null;
     }
 
-    internal GlyphInfo RenderGlyph(uint glyph)
+    private GlyphInfo RenderGlyph(uint glyph)
     {
         // Check if already cached.
         if (_glyphInfos.TryGetValue(glyph, out var info))
@@ -101,7 +100,7 @@ internal sealed class FontInstance : IDisposable
         return info;
     }
 
-    internal OutlinedGlyphInfo RenderOutlineGlyph(uint glyph, int radius)
+    private OutlinedGlyphInfo RenderOutlineGlyph(uint glyph, int radius)
     {
         if (_outlinedGlyphInfos.TryGetValue((glyph, radius), out var info))
             return info;
