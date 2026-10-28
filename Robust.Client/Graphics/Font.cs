@@ -145,10 +145,10 @@ namespace Robust.Client.Graphics
             Handle = handle;
         }
 
-        public override int GetAscent(float scale) => Handle.GetAscent(Size, scale);
-        public override int GetHeight(float scale) => Handle.GetHeight(Size, scale);
-        public override int GetDescent(float scale) => Handle.GetDescent(Size, scale);
-        public override int GetLineHeight(float scale) => Handle.GetLineHeight(Size, scale);
+        public override int GetAscent(float scale) => Handle.GetInstance(Size, scale).Ascent;
+        public override int GetHeight(float scale) => Handle.GetInstance(Size, scale).Height;
+        public override int GetDescent(float scale) => Handle.GetInstance(Size, scale).Descent;
+        public override int GetLineHeight(float scale) => Handle.GetInstance(Size, scale).LineHeight;
 
         public override float DrawChar(DrawingHandleBase handle, Rune rune, Vector2 baseline, float scale, Color color, bool fallback=true)
         {

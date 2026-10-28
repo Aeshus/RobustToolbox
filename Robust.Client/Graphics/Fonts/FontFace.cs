@@ -97,15 +97,7 @@ internal sealed class FontFace(IClyde clyde, Library library, Face face, IFontMe
             : null;
     }
 
-    public int GetAscent(int size, float scale) => GetInstance(size, scale).Ascent;
-
-    public int GetDescent(int size, float scale) => GetInstance(size, scale).Descent;
-
-    public int GetHeight(int size, float scale) => GetInstance(size, scale).Height;
-
-    public int GetLineHeight(int size, float scale) => GetInstance(size, scale).LineHeight;
-
-    private FontInstance GetInstance(int size, float scale)
+    public FontInstance GetInstance(int size, float scale)
     {
         if (_cachedInstances.TryGetValue((size, scale), out var instance))
             return instance;
