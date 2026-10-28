@@ -11,12 +11,26 @@ namespace Robust.Client.Graphics.Fonts;
 
 internal sealed class FontInstance : IDisposable
 {
-    private readonly IClyde _clyde;
-    private readonly Face _face;
-    private readonly int _size;
-
     private const int SheetWidth = 256;
     private const int SheetHeight = 256;
+
+    public readonly int Ascent;
+    public readonly int Descent;
+    public readonly int Height;
+    public readonly int LineHeight;
+
+    private readonly List<OwnedTexture> _atlasTextures = new();
+    private readonly IClyde _clyde;
+    private readonly Face _face;
+    private readonly Dictionary<uint, GlyphInfo> _glyphInfos = new();
+    private readonly Dictionary<(uint Glyph, int Radius), OutlinedGlyphInfo> _outlinedGlyphInfos = new();
+    private readonly int _size;
+    private readonly Stroker _stroker;
+    private readonly uint _verticalResolution;
+    private int _curSheetMaxY;
+
+    private int _curSheetX;
+    private int _curSheetY;
 
     public FontInstance(IClyde clyde, Library library, Face face, int size, uint verticalResolution)
     {
@@ -35,19 +49,15 @@ internal sealed class FontInstance : IDisposable
         _size = size;
     }
 
-    private readonly List<OwnedTexture> _atlasTextures = new();
-    private readonly Dictionary<uint, GlyphInfo> _glyphInfos = new();
-    private readonly Dictionary<(uint Glyph, int Radius), OutlinedGlyphInfo> _outlinedGlyphInfos = new();
-    private readonly Stroker _stroker;
-    public readonly int Ascent;
-    public readonly int Descent;
-    public readonly int Height;
-    public readonly int LineHeight;
-    private readonly uint _verticalResolution;
+    public void Dispose()
+    {
+        foreach (var texture in _atlasTextures)
+        {
+            texture.Dispose();
+        }
 
-    private int _curSheetX;
-    private int _curSheetY;
-    private int _curSheetMaxY;
+        _stroker.Dispose();
+    }
 
     internal GlyphInfo EnsureGlyphCached(
         uint glyph)
@@ -229,16 +239,6 @@ internal sealed class FontInstance : IDisposable
             return null;
 
         return new OutlinedGlyph(info.Texture, info.Left, info.Top);
-    }
-
-    public void Dispose()
-    {
-        foreach (var texture in _atlasTextures)
-        {
-            texture.Dispose();
-        }
-
-        _stroker.Dispose();
     }
 }
 

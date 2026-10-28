@@ -8,16 +8,29 @@ namespace Robust.Client.Graphics.Fonts;
 internal sealed class FontFaceHandle(IClyde clyde, Library library, Face face, IFontMemoryHandle memoryHandle)
 {
     private const float FreeType26Dot6Scale = 64f;
+    private readonly Dictionary<(int, float), FontInstance> _cachedInstances = new();
+    private readonly Dictionary<Rune, uint> _glyphIndexCache = new();
 
     // Keep this alive to avoid it being GC'd.
     // ReSharper disable once NotAccessedField.Local
     private readonly IFontMemoryHandle _memoryHandle = memoryHandle;
-    private readonly Dictionary<(int, float), FontInstance> _cachedInstances = new();
-    private readonly Dictionary<Rune, uint> _glyphIndexCache = new();
 
     internal IClyde Clyde { get; } = clyde;
     internal Library Library { get; } = library;
     internal Face Face { get; } = face;
+
+    public uint FontDpi
+    {
+        get;
+        set
+        {
+            if (field == value)
+                return;
+
+            ClearSizeData();
+            field = value;
+        }
+    }
 
     // 0 is a sentinel value for failure
     public uint GetGlyphIndex(Rune chr)
@@ -43,19 +56,6 @@ internal sealed class FontFaceHandle(IClyde clyde, Library library, Face face, I
         }
 
         _cachedInstances.Clear();
-    }
-
-    public uint FontDpi
-    {
-        get;
-        set
-        {
-            if (field == value)
-                return;
-
-            ClearSizeData();
-            field = value;
-        }
     }
 
     public bool TryGetGlyph(
