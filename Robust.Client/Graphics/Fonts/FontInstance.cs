@@ -9,7 +9,7 @@ using SixLabors.ImageSharp.PixelFormats;
 
 namespace Robust.Client.Graphics.Fonts;
 
-internal sealed class FontInstance
+internal sealed class FontInstance : IDisposable
 {
     private readonly IClyde _clyde;
     private readonly Face _face;
@@ -21,45 +21,45 @@ internal sealed class FontInstance
     public FontInstance(IClyde clyde, Library library, Face face, int size, uint verticalResolution)
     {
         var ftFace = face;
-        VerticalResolution = verticalResolution;
-        ftFace.SetCharSize(0, size, 0, VerticalResolution);
+        _verticalResolution = verticalResolution;
+        ftFace.SetCharSize(0, size, 0, _verticalResolution);
 
         Ascent = ftFace.Size.Metrics.Ascender.ToInt32();
         Descent = -ftFace.Size.Metrics.Descender.ToInt32();
         LineHeight = ftFace.Size.Metrics.Height.ToInt32();
         Height = Ascent + Descent;
 
-        Stroker = new Stroker(library);
+        _stroker = new Stroker(library);
         _clyde = clyde;
         _face = face;
         _size = size;
     }
 
-    public readonly List<OwnedTexture> AtlasTextures = new();
-    public readonly Dictionary<uint, GlyphInfo> GlyphInfos = new();
-    public readonly Dictionary<(uint Glyph, int Radius), OutlinedGlyphInfo> OutlinedGlyphInfos = new();
-    public readonly Stroker Stroker;
+    private readonly List<OwnedTexture> _atlasTextures = new();
+    private readonly Dictionary<uint, GlyphInfo> _glyphInfos = new();
+    private readonly Dictionary<(uint Glyph, int Radius), OutlinedGlyphInfo> _outlinedGlyphInfos = new();
+    private readonly Stroker _stroker;
     public readonly int Ascent;
     public readonly int Descent;
     public readonly int Height;
     public readonly int LineHeight;
-    public readonly uint VerticalResolution;
+    private readonly uint _verticalResolution;
 
-    public int CurSheetX;
-    public int CurSheetY;
-    public int CurSheetMaxY;
+    private int _curSheetX;
+    private int _curSheetY;
+    private int _curSheetMaxY;
 
     internal GlyphInfo EnsureGlyphCached(
         uint glyph)
     {
         // Check if already cached.
-        if (GlyphInfos.TryGetValue(glyph, out var info))
+        if (_glyphInfos.TryGetValue(glyph, out var info))
             return info;
 
         info = new GlyphInfo();
 
         var face = _face;
-        face.SetCharSize(0, _size, 0, VerticalResolution);
+        face.SetCharSize(0, _size, 0, _verticalResolution);
         face.LoadGlyph(glyph, LoadFlags.Default, LoadTarget.Normal);
         face.Glyph.RenderGlyph(RenderMode.Normal);
 
@@ -73,7 +73,7 @@ internal sealed class FontInstance
         using var bitmap = face.Glyph.Bitmap;
         info.Texture = CacheBitmap(bitmap);
 
-        GlyphInfos.Add(glyph, info);
+        _glyphInfos.Add(glyph, info);
         return info;
     }
 
@@ -81,15 +81,15 @@ internal sealed class FontInstance
         uint glyph,
         int radius)
     {
-        if (OutlinedGlyphInfos.TryGetValue((glyph, radius), out var info))
+        if (_outlinedGlyphInfos.TryGetValue((glyph, radius), out var info))
             return info;
 
         var face = _face;
-        face.SetCharSize(0, _size, 0, VerticalResolution);
+        face.SetCharSize(0, _size, 0, _verticalResolution);
         face.LoadGlyph(glyph, LoadFlags.Default, LoadTarget.Normal);
 
         using var sourceGlyph = face.Glyph.GetGlyph();
-        var stroker = Stroker;
+        var stroker = _stroker;
         stroker.Set(radius, StrokerLineCap.Round, StrokerLineJoin.Round, Fixed16Dot16.FromInt32(0));
         stroker.Rewind();
         using var strokedGlyph = sourceGlyph.StrokeBorder(stroker, false, true);
@@ -104,7 +104,7 @@ internal sealed class FontInstance
             Top = bitmapGlyph.Top,
         };
 
-        OutlinedGlyphInfos.Add((glyph, radius), info);
+        _outlinedGlyphInfos.Add((glyph, radius), info);
         return info;
     }
 
@@ -150,35 +150,35 @@ internal sealed class FontInstance
         }
 
         OwnedTexture sheet;
-        if (AtlasTextures.Count == 0)
+        if (_atlasTextures.Count == 0)
             sheet = GenSheet();
         else
-            sheet = AtlasTextures[^1];
+            sheet = _atlasTextures[^1];
 
         var (sheetW, sheetH) = sheet.Size;
-        if (sheetW - CurSheetX < img.Width)
+        if (sheetW - _curSheetX < img.Width)
         {
-            CurSheetX = 0;
+            _curSheetX = 0;
             // +1 adds vertical padding to avoid artifacts when aliasing.
-            CurSheetY = CurSheetMaxY + 1;
+            _curSheetY = _curSheetMaxY + 1;
         }
 
-        if (sheetH - CurSheetY < img.Height)
+        if (sheetH - _curSheetY < img.Height)
         {
-            CurSheetY = 0;
-            CurSheetX = 0;
-            CurSheetMaxY = 0;
+            _curSheetY = 0;
+            _curSheetX = 0;
+            _curSheetMaxY = 0;
             sheet = GenSheet();
         }
 
-        sheet.SetSubImage((CurSheetX, CurSheetY), img);
+        sheet.SetSubImage((_curSheetX, _curSheetY), img);
         var atlasTexture = new AtlasTexture(
             sheet,
-            UIBox2.FromDimensions(CurSheetX, CurSheetY, bitmap.Width, bitmap.Rows));
+            UIBox2.FromDimensions(_curSheetX, _curSheetY, bitmap.Width, bitmap.Rows));
 
-        CurSheetMaxY = Math.Max(CurSheetMaxY, CurSheetY + bitmap.Rows);
+        _curSheetMaxY = Math.Max(_curSheetMaxY, _curSheetY + bitmap.Rows);
         // +1 adds horizontal padding to avoid artifacts when aliasing.
-        CurSheetX += bitmap.Width + 1;
+        _curSheetX += bitmap.Width + 1;
         return atlasTexture;
 
         OwnedTexture GenSheet()
@@ -186,8 +186,8 @@ internal sealed class FontInstance
             var face = _face;
             var texture = _clyde.CreateBlankTexture<A8>(
                 (SheetWidth, SheetHeight),
-                $"font-{face.FamilyName}-{_size}-{VerticalResolution}-sheet{AtlasTextures.Count}");
-            AtlasTextures.Add(texture);
+                $"font-{face.FamilyName}-{_size}-{_verticalResolution}-sheet{_atlasTextures.Count}");
+            _atlasTextures.Add(texture);
             return texture;
         }
     }
@@ -219,8 +219,6 @@ internal sealed class FontInstance
         return bitmapImage;
     }
 
-
-
     public OutlinedGlyph? GetOutlinedChar(uint glyph, int radius)
     {
         if (radius <= 0)
@@ -231,6 +229,16 @@ internal sealed class FontInstance
             return null;
 
         return new OutlinedGlyph(info.Texture, info.Left, info.Top);
+    }
+
+    public void Dispose()
+    {
+        foreach (var texture in _atlasTextures)
+        {
+            texture.Dispose();
+        }
+
+        _stroker.Dispose();
     }
 }
 
@@ -248,4 +256,3 @@ internal sealed class GlyphInfo
 }
 
 internal readonly record struct OutlinedGlyph(Texture Texture, int Left, int Top);
-

@@ -39,12 +39,7 @@ internal sealed class FontFaceHandle(IClyde clyde, Library library, Face face, I
     {
         foreach (var instance in _cachedInstances.Values)
         {
-            foreach (var ownedTexture in instance.AtlasTextures)
-            {
-                ownedTexture.Dispose();
-            }
-
-            instance.Stroker.Dispose();
+            instance.Dispose();
         }
 
         _cachedInstances.Clear();
