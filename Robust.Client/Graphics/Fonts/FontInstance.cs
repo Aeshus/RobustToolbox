@@ -60,6 +60,20 @@ internal sealed class FontInstance : IDisposable
         _stroker.Dispose();
     }
 
+    internal void GetGlyph(
+        uint glyph,
+        int outlineRadius,
+        out CharMetrics metrics,
+        out Texture? texture,
+        out OutlinedGlyph? outlinedGlyph)
+    {
+        var info = RenderGlyph(glyph);
+        metrics = info.Metrics;
+        texture = info.Texture;
+
+        outlinedGlyph = texture != null && outlineRadius > 0 ? RenderGlyphWithOutline(glyph, outlineRadius) : null;
+    }
+
     internal GlyphInfo RenderGlyph(uint glyph)
     {
         // Check if already cached.
@@ -226,7 +240,7 @@ internal sealed class FontInstance : IDisposable
         return bitmapImage;
     }
 
-    public OutlinedGlyph? RenderGlyphWithOutline(uint glyph, int radius)
+    private OutlinedGlyph? RenderGlyphWithOutline(uint glyph, int radius)
     {
         if (radius <= 0)
             return null;
