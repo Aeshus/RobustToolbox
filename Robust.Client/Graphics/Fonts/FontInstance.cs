@@ -19,18 +19,19 @@ internal sealed class FontInstance : IDisposable
     public readonly int Height;
     public readonly int LineHeight;
 
-    private readonly List<OwnedTexture> _atlasTextures = new();
     private readonly IClyde _clyde;
     private readonly Face _face;
+    private readonly Stroker _stroker;
+
+    private readonly List<OwnedTexture> _atlasTextures = new();
     private readonly Dictionary<uint, GlyphInfo> _glyphInfos = new();
     private readonly Dictionary<(uint Glyph, int Radius), OutlinedGlyphInfo> _outlinedGlyphInfos = new();
     private readonly int _size;
-    private readonly Stroker _stroker;
     private readonly uint _verticalResolution;
-    private int _curSheetMaxY;
 
     private int _curSheetX;
     private int _curSheetY;
+    private int _curSheetMaxY;
 
     public FontInstance(IClyde clyde, Library library, Face face, int size, uint verticalResolution)
     {
