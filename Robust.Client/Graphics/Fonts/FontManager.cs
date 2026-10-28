@@ -31,7 +31,6 @@ internal sealed partial class FontManager : IFontManagerInternal, IPostInjectIni
         }
     }
 
-
     private readonly Library _library = new();
 
     private readonly List<FontFace> _loadedInstances = new();
