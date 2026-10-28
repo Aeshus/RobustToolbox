@@ -8,7 +8,7 @@ namespace Robust.Client.Graphics.Fonts;
 internal sealed class FontFace(IClyde clyde, Library library, Face face, IFontMemoryHandle memoryHandle)
 {
     private const float FreeType26Dot6Scale = 64f;
-    private readonly Dictionary<(int, float), FontInstance> _cachedInstances = new();
+    private readonly Dictionary<(int, uint), FontInstance> _cachedInstances = new();
     private readonly Dictionary<Rune, uint> _glyphIndexCache = new();
 
     // Keep this alive to avoid it being GC'd.
@@ -89,11 +89,13 @@ internal sealed class FontFace(IClyde clyde, Library library, Face face, IFontMe
 
     internal FontInstance GetInstance(int size, float scale)
     {
-        if (_cachedInstances.TryGetValue((size, scale), out var instance))
+        var verticalResolution = (uint)(scale * FontDpi);
+
+        if (_cachedInstances.TryGetValue((size, verticalResolution), out var instance))
             return instance;
 
-        instance = new FontInstance(clyde, library, Face, size, (uint)(scale * FontDpi));
-        _cachedInstances.Add((size, scale), instance);
+        instance = new FontInstance(clyde, library, Face, size, verticalResolution);
+        _cachedInstances.Add((size, verticalResolution), instance);
         return instance;
     }
 }
