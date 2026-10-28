@@ -12,7 +12,7 @@ internal sealed class FontFace(IClyde clyde, Library library, Face face, IFontMe
     private readonly Dictionary<Rune, uint> _glyphIndexCache = new();
 
     // Keep this alive to avoid it being GC'd.
-    // ReSharper disable once NotAccessedField.Local
+    // ReSharper disable once UnusedMember.Local
     private readonly IFontMemoryHandle _memoryHandle = memoryHandle;
 
     private Face Face { get; } = face;
