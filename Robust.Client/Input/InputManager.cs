@@ -34,7 +34,7 @@ using static Robust.Client.Input.Keyboard;
 namespace Robust.Client.Input
 {
     [Virtual]
-    internal partial class InputManager : IInputManager
+    internal partial class InputManager : IInputManagerInternal
     {
         // This is for both userdata and resources.
         private const string KeybindsPath = "/keybinds.yml";

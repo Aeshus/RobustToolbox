@@ -38,14 +38,6 @@ namespace Robust.Client.Input
         void Initialize();
         void SaveToUserData();
 
-        void KeyDown(KeyEventArgs e);
-        void KeyUp(KeyEventArgs e);
-
-        /// <summary>
-        ///     Releases all currently held non-toggle key bindings and clears tracked key state.
-        /// </summary>
-        void ReleaseAllKeys();
-
         IKeyBinding RegisterBinding(in KeyBindingRegistration reg, bool markModified=true, bool invalid=false);
 
         void RemoveBinding(IKeyBinding binding, bool markModified=true);
@@ -149,5 +141,16 @@ namespace Robust.Client.Input
         bool IsKeyDown(Keyboard.Key key);
 
         void InputModeChanged();
+    }
+
+    internal interface IInputManagerInternal : IInputManager
+    {
+        void KeyDown(KeyEventArgs e);
+        void KeyUp(KeyEventArgs e);
+
+        /// <summary>
+        ///     Releases all currently held non-toggle key bindings and clears tracked key state.
+        /// </summary>
+        void ReleaseAllKeys();
     }
 }

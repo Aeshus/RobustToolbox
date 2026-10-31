@@ -64,7 +64,7 @@ namespace Robust.Client
         [Dependency] private IStateManager _stateManager = default!;
         [Dependency] private IUserInterfaceManagerInternal _userInterfaceManager = default!;
         [Dependency] private IBaseClient _client = default!;
-        [Dependency] private IInputManager _inputManager = default!;
+        [Dependency] private IInputManagerInternal _inputManager = default!;
         [Dependency] private IClientConsoleHost _console = default!;
         [Dependency] private ITimerManager _timerManager = default!;
         [Dependency] private IClientEntityManager _entityManager = default!;

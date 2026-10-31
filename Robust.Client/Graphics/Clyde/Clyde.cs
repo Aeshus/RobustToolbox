@@ -47,7 +47,7 @@ namespace Robust.Client.Graphics.Clyde
         [Dependency] private ProfManager _prof = default!;
         [Dependency] private IDependencyCollection _deps = default!;
         [Dependency] private ILocalizationManager _loc = default!;
-        [Dependency] private IInputManager _inputManager = default!;
+        [Dependency] private IInputManagerInternal _inputManager = default!;
         [Dependency] private ClientEntityManager _entityManager = default!;
         [Dependency] private IPrototypeManager _proto = default!;
         [Dependency] private IReloadManager _reloads = default!;
