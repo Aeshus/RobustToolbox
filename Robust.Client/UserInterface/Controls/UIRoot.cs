@@ -1,5 +1,6 @@
 ﻿using System;
 using Robust.Client.Graphics;
+using Robust.Shared.Map;
 using Robust.Shared.Maths;
 
 namespace Robust.Client.UserInterface.Controls
@@ -26,6 +27,11 @@ namespace Robust.Client.UserInterface.Controls
         internal Color ActualBgColor => BackgroundColor ?? _styleBgColor;
 
         internal Control? StoredKeyboardFocus;
+
+        public Control? MouseGetControl(ScreenCoordinates coordinates)
+        {
+            throw new NotImplementedException();
+        }
 
         protected override void StylePropertiesChanged()
         {

@@ -74,8 +74,6 @@ namespace Robust.Client.UserInterface
 
         Control? ControlFocused { set; get; }
 
-        Control? MouseGetControl(ScreenCoordinates coordinates);
-
         public event Action<Control>? OnKeyBindDown;
     }
 }
