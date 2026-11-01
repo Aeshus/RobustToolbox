@@ -1,3 +1,4 @@
+using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Numerics;
 using Robust.Client.Graphics;
@@ -64,6 +65,18 @@ namespace Robust.Client.UserInterface
 
         void RenderControl(IRenderHandle renderHandle, ref int total, Control control, Vector2i position, Color modulate,
             UIBox2i? scissorBox, Matrix3x2 coordinateTransform);
+
+        /// <summary>
+        /// A control can have "keyboard focus" separate from ControlFocused, obtained when calling
+        /// Control.GrabKeyboardFocus. Corresponding events in Control are KeyboardFocusEntered/Exited
+        /// </summary>
+        Control? KeyboardFocused { get; }
+
+        Control? ControlFocused { set; get; }
+
+        Control? MouseGetControl(ScreenCoordinates coordinates);
+
+        public event Action<Control>? OnKeyBindDown;
     }
 }
 
