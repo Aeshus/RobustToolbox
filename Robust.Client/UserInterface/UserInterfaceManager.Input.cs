@@ -164,6 +164,16 @@ internal partial class UserInterfaceManager
         SetHovered(ctrl);
     }
 
+    public bool HasHover(Control? control)
+    {
+        return control == CurrentlyHovered;
+    }
+
+    public bool HasKeyboardFocus(Control? control)
+    {
+        return control == KeyboardFocused;
+    }
+
     public void SetHovered(Control? control)
     {
         if (control == CurrentlyHovered)

@@ -107,9 +107,6 @@ namespace Robust.Client.UserInterface
         /// </summary>
         /// <returns>Null if the window has no UI root.</returns>
         WindowRoot? GetWindowRoot(IClydeWindow window);
-
-        IEnumerable<UIRoot> AllRoots { get; }
-
         event Action<PostDrawUIRootEventArgs> OnPostDrawUIRoot;
 
         void DeferAction(Action action);

@@ -1,8 +1,10 @@
 using System;
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Numerics;
 using Robust.Client.Graphics;
 using Robust.Client.Input;
+using Robust.Client.UserInterface.Controls;
 using Robust.Shared.Input;
 using Robust.Shared.Map;
 using Robust.Shared.Maths;
@@ -75,6 +77,8 @@ namespace Robust.Client.UserInterface
         Control? ControlFocused { set; get; }
 
         public event Action<Control>? OnKeyBindDown;
+
+        IEnumerable<UIRoot> AllRoots { get; }
     }
 }
 
