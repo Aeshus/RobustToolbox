@@ -1,7 +1,5 @@
 using System.Collections.Generic;
 using System.Globalization;
-using System.IO;
-using System.IO.MemoryMappedFiles;
 using System.Threading;
 using Robust.Shared.Log;
 
@@ -127,42 +125,6 @@ internal abstract class SystemFontManagerBase
                 Primary = language,
                 Values = new Dictionary<string, string> { { language, value } }
             };
-        }
-    }
-
-    protected sealed class MemoryMappedFontMemoryHandle : IFontMemoryHandle
-    {
-        private readonly MemoryMappedFile _mappedFile;
-        private readonly MemoryMappedViewAccessor _accessor;
-
-        public MemoryMappedFontMemoryHandle(string filePath)
-        {
-            _mappedFile = MemoryMappedFile.CreateFromFile(
-                filePath,
-                FileMode.Open,
-                null,
-                0,
-                MemoryMappedFileAccess.Read);
-
-            _accessor = _mappedFile.CreateViewAccessor(0, 0, MemoryMappedFileAccess.Read);
-        }
-
-        public unsafe byte* GetData()
-        {
-            byte* pointer = null;
-            _accessor.SafeMemoryMappedViewHandle.AcquirePointer(ref pointer);
-            return pointer;
-        }
-
-        public nint GetDataSize()
-        {
-            return (nint)_accessor.Capacity;
-        }
-
-        public void Dispose()
-        {
-            _accessor.Dispose();
-            _mappedFile.Dispose();
         }
     }
 }
