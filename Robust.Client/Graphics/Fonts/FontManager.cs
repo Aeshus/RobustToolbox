@@ -30,7 +30,7 @@ internal sealed partial class FontManager : IFontManagerInternal, IPostInjectIni
                 face.FontDpi = value;
             }
         }
-    }
+    } = 96;
 
     private readonly Library _library = new();
 
