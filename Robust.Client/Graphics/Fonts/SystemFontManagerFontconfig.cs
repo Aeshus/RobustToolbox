@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using Robust.Client.Graphics.Fonts;
 using Robust.Shared.Log;
 using SpaceWizards.Fontconfig.Interop;
 

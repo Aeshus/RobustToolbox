@@ -1,11 +1,12 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Text;
 using SharpFont;
 
 namespace Robust.Client.Graphics.Fonts;
 
-internal sealed class FontFace
+internal sealed class FontFace : IFontFace
 {
     private const float FreeType26Dot6Scale = 64f;
     private readonly Dictionary<(int, uint), FontInstance> _cachedInstances = new();
@@ -110,11 +111,23 @@ internal sealed class FontFace
         _cachedInstances.Add((size, verticalResolution), instance);
         return instance;
     }
+
+    public string PostscriptName => _metadata.Value.PostscriptName;
+    public string FullName => _metadata.Value.FullName;
+    public string FamilyName => _metadata.Value.FamilyName;
+    public string FaceName => _metadata.Value.FaceName;
+    public string GetLocalizedFullName(CultureInfo culture) => _metadata.Value.GetLocalizedFullName(culture);
+    public string GetLocalizedFamilyName(CultureInfo culture) => _metadata.Value.GetLocalizedFamilyName(culture);
+    public string GetLocalizedFaceName(CultureInfo culture) => _metadata.Value.GetLocalizedFaceName(culture);
+    public FontWeight Weight => _metadata.Value.Weight;
+    public FontSlant Slant => _metadata.Value.Slant;
+    public FontWidth Width => _metadata.Value.Width;
 }
 
 internal struct FaceHandle(Face face, IFontMemoryHandle memoryHandle)
 {
     public readonly Face Face = face;
+
     // ReSharper disable once UnusedMember.Local
     private readonly IFontMemoryHandle _memoryHandle = memoryHandle;
 }
