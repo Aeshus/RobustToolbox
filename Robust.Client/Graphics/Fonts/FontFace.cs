@@ -5,7 +5,7 @@ using SharpFont;
 
 namespace Robust.Client.Graphics.Fonts;
 
-internal sealed class FontFace(IClyde clyde, Library library, Face face, IFontMemoryHandle memoryHandle)
+internal sealed class FontFace
 {
     private const float FreeType26Dot6Scale = 64f;
     private readonly Dictionary<(int, uint), FontInstance> _cachedInstances = new();
@@ -13,9 +13,22 @@ internal sealed class FontFace(IClyde clyde, Library library, Face face, IFontMe
 
     // Keep this alive to avoid it being GC'd.
     // ReSharper disable once UnusedMember.Local
-    private readonly IFontMemoryHandle _memoryHandle = memoryHandle;
+    private readonly IFontMemoryHandle _memoryHandle;
+    private readonly IClyde _clyde;
+    private readonly Library _library;
 
-    private Face Face { get; } = face;
+    private Lazy<FontMetadata> _metadata;
+
+    public FontFace(IClyde clyde, Library library, Face face, IFontMemoryHandle memoryHandle, Func<FontMetadata>? metadata)
+    {
+        _clyde = clyde;
+        _library = library;
+        _memoryHandle = memoryHandle;
+        Face = face;
+        _metadata = new Lazy<FontMetadata>(() => metadata?.Invoke()!);
+    }
+
+    private Face Face { get; }
 
     internal uint FontDpi
     {
@@ -94,7 +107,7 @@ internal sealed class FontFace(IClyde clyde, Library library, Face face, IFontMe
         if (_cachedInstances.TryGetValue((size, verticalResolution), out var instance))
             return instance;
 
-        instance = new FontInstance(clyde, library, Face, size, verticalResolution);
+        instance = new FontInstance(_clyde, _library, Face, size, verticalResolution);
         _cachedInstances.Add((size, verticalResolution), instance);
         return instance;
     }

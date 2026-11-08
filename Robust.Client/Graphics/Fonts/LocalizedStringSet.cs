@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Globalization;
 
 namespace Robust.Client.Graphics.Fonts;
 
@@ -20,5 +21,19 @@ internal struct LocalizedStringSet
             Primary = language,
             Values = new Dictionary<string, string> { { language, value } }
         };
+    }
+
+    public string GetLocalized(CultureInfo culture)
+    {
+        var matchCulture = culture;
+        while (!Equals(matchCulture, CultureInfo.InvariantCulture))
+        {
+            if (Values.TryGetValue(culture.Name, out var value))
+                return value;
+
+            matchCulture = matchCulture.Parent;
+        }
+
+        return Values[Primary];
     }
 }
