@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using SharpFont;
-using SharpFont.TrueType;
 
 namespace Robust.Client.Graphics.Fonts;
 
@@ -12,29 +11,23 @@ internal sealed class FontFace
     private readonly Dictionary<(int, uint), FontInstance> _cachedInstances = new();
     private readonly Dictionary<Rune, uint> _glyphIndexCache = new();
 
-    // Keep this alive to avoid it being GC'd.
-    // ReSharper disable once UnusedMember.Local
-    private readonly IFontMemoryHandle _memoryHandle;
     private readonly IClyde _clyde;
     private readonly Library _library;
 
-    private Lazy<FontMetadata> _metadata;
+    private readonly Lazy<FaceHandle> _faceHandle;
+    private readonly Lazy<FontMetadata> _metadata;
 
     public FontFace(
         IClyde clyde,
         Library library,
-        Face face,
-        IFontMemoryHandle memoryHandle,
+        Func<FaceHandle> faceHandle,
         Func<FontMetadata>? metadata = null)
     {
         _clyde = clyde;
         _library = library;
-        _memoryHandle = memoryHandle;
-        Face = face;
-        _metadata = new Lazy<FontMetadata>(() => metadata?.Invoke() ?? new FontMetadata(face));
+        _faceHandle = new Lazy<FaceHandle>(faceHandle);
+        _metadata = new Lazy<FontMetadata>(() => metadata?.Invoke() ?? new FontMetadata(_faceHandle.Value.Face));
     }
-
-    private Face Face { get; }
 
     internal uint FontDpi
     {
@@ -58,7 +51,7 @@ internal sealed class FontFace
         }
 
         // Check FreeType to see if it exists.
-        var index = Face.GetCharIndex((uint)chr.Value);
+        var index = _faceHandle.Value.Face.GetCharIndex((uint)chr.Value);
 
         _glyphIndexCache.Add(chr, index);
 
@@ -113,9 +106,15 @@ internal sealed class FontFace
         if (_cachedInstances.TryGetValue((size, verticalResolution), out var instance))
             return instance;
 
-        instance = new FontInstance(_clyde, _library, Face, size, verticalResolution);
+        instance = new FontInstance(_clyde, _library, _faceHandle.Value.Face, size, verticalResolution);
         _cachedInstances.Add((size, verticalResolution), instance);
         return instance;
     }
+}
 
+internal struct FaceHandle(Face face, IFontMemoryHandle memoryHandle)
+{
+    public readonly Face Face = face;
+    // ReSharper disable once UnusedMember.Local
+    private readonly IFontMemoryHandle _memoryHandle = memoryHandle;
 }

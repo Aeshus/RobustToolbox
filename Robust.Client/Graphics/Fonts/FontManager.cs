@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.IO;
 using Robust.Shared.IoC;
@@ -50,10 +51,15 @@ internal sealed partial class FontManager : IFontManagerInternal, IPostInjectIni
 
     public FontFace Load(IFontMemoryHandle memory, int index = 0)
     {
-        return CreateFaceHandle(LoadFace(memory, index), memory);
+        return CreateFaceHandle(() => new FaceHandle(LoadFace(memory, index), memory));
     }
 
     public FontFace LoadWithPostscriptName(IFontMemoryHandle memory, string postscriptName)
+    {
+        return CreateFaceHandle(() => new FaceHandle(LoadFaceWithPostscriptName(memory, postscriptName), memory));
+    }
+
+    private Face LoadFaceWithPostscriptName(IFontMemoryHandle memory, string postscriptName)
     {
         var numFaces = 1;
 
@@ -63,14 +69,14 @@ internal sealed partial class FontManager : IFontManagerInternal, IPostInjectIni
             numFaces = face.FaceCount;
 
             if (face.GetPostscriptName() == postscriptName)
-                return CreateFaceHandle(face, memory);
+                return face;
 
             face.Dispose();
         }
 
         // Fallback, load SOMETHING.
         _sawmill.Warning($"Failed to load correct font via postscript name! {postscriptName}");
-        return CreateFaceHandle(LoadFace(memory, 0), memory);
+        return LoadFace(memory, 0);
     }
 
     private unsafe Face LoadFace(IFontMemoryHandle memory, int index)
@@ -81,9 +87,9 @@ internal sealed partial class FontManager : IFontManagerInternal, IPostInjectIni
             index);
     }
 
-    private FontFace CreateFaceHandle(Face face, IFontMemoryHandle memoryHandle)
+    private FontFace CreateFaceHandle(Func<FaceHandle> faceHandle)
     {
-        var handle = new FontFace(_clyde, _library, face, memoryHandle)
+        var handle = new FontFace(_clyde, _library, faceHandle)
         {
             FontDpi = FontDpi
         };
