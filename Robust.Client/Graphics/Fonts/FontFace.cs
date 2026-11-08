@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using SharpFont;
+using SharpFont.TrueType;
 
 namespace Robust.Client.Graphics.Fonts;
 
@@ -19,13 +20,18 @@ internal sealed class FontFace
 
     private Lazy<FontMetadata> _metadata;
 
-    public FontFace(IClyde clyde, Library library, Face face, IFontMemoryHandle memoryHandle, Func<FontMetadata>? metadata)
+    public FontFace(
+        IClyde clyde,
+        Library library,
+        Face face,
+        IFontMemoryHandle memoryHandle,
+        Func<FontMetadata>? metadata = null)
     {
         _clyde = clyde;
         _library = library;
         _memoryHandle = memoryHandle;
         Face = face;
-        _metadata = new Lazy<FontMetadata>(() => metadata?.Invoke()!);
+        _metadata = new Lazy<FontMetadata>(() => metadata?.Invoke() ?? new FontMetadata(face));
     }
 
     private Face Face { get; }
@@ -111,4 +117,5 @@ internal sealed class FontFace
         _cachedInstances.Add((size, verticalResolution), instance);
         return instance;
     }
+
 }
