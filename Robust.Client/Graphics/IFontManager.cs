@@ -1,3 +1,4 @@
+using System;
 using System.IO;
 using Robust.Client.Graphics.Fonts;
 
@@ -11,15 +12,13 @@ public interface IFontManager
 
 internal interface IFontManagerInternal : IFontManager
 {
-    FontFace Load(Stream stream, int index = 0);
-    FontFace Load(IFontMemoryHandle memory, int index = 0);
+    FontFace Load(Stream stream, int index, FontMetadata? metadata = null);
+    FontFace Load(IFontMemoryHandle memory, int index, FontMetadata? metadata = null);
 
-    /// <summary>
-    /// Load a specified font in a font collection.
-    /// </summary>
-    /// <param name="memory">Memory for the entire font collection.</param>
-    /// <param name="postscriptName">The postscript name of the font to load.</param>
-    FontFace LoadWithPostscriptName(IFontMemoryHandle memory, string postscriptName);
+    FontFace LoadWithPostscriptName(
+        IFontMemoryHandle memory,
+        string postscriptName,
+        FontMetadata? metadata = null);
 
     uint FontDpi { set; }
 }

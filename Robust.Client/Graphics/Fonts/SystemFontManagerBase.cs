@@ -25,9 +25,9 @@ internal abstract class SystemFontManagerBase
     protected readonly ISawmill Sawmill;
 
     protected readonly Lock Lock = new();
-    protected readonly List<BaseHandle> Fonts = [];
+    protected readonly List<FontFace> Fonts = [];
 
-    public IEnumerable<ISystemFontFace> SystemFontFaces { get; }
+    public IEnumerable<FontFace> SystemFontFaces { get; }
 
     public SystemFontManagerBase(ILogManager logManager, IFontManagerInternal fontManager)
     {
@@ -36,8 +36,6 @@ internal abstract class SystemFontManagerBase
 
         SystemFontFaces = Fonts.AsReadOnly();
     }
-
-    protected abstract FontFace LoadFontFace(BaseHandle handle);
 
     protected static string GetLocalizedForLocaleOrFirst(LocalizedStringSet set, CultureInfo culture)
     {
@@ -51,59 +49,5 @@ internal abstract class SystemFontManagerBase
         }
 
         return set.Values[set.Primary];
-    }
-
-    protected abstract class BaseHandle(SystemFontManagerBase parent) : ISystemFontFace
-    {
-        private FontFace? _cachedFont;
-
-        public required string PostscriptName { get; init; }
-
-        public required LocalizedStringSet FullNames;
-        public required LocalizedStringSet FamilyNames;
-        public required LocalizedStringSet FaceNames;
-
-        public required FontWeight Weight { get; init; }
-        public required FontSlant Slant { get; init; }
-        public required FontWidth Width { get; init; }
-
-        public string FullName => GetLocalizedFullName(CultureInfo.CurrentCulture);
-        public string FamilyName => GetLocalizedFamilyName(CultureInfo.CurrentCulture);
-        public string FaceName => GetLocalizedFaceName(CultureInfo.CurrentCulture);
-
-        public string GetLocalizedFullName(CultureInfo culture)
-        {
-            return GetLocalizedForLocaleOrFirst(FullNames, culture);
-        }
-
-        public string GetLocalizedFamilyName(CultureInfo culture)
-        {
-            return GetLocalizedForLocaleOrFirst(FamilyNames, culture);
-        }
-
-        public string GetLocalizedFaceName(CultureInfo culture)
-        {
-            return GetLocalizedForLocaleOrFirst(FaceNames, culture);
-        }
-
-        public Font Load(int size)
-        {
-            var handle = GetFaceHandle();
-
-            return new VectorFont(handle, size);
-        }
-
-        private FontFace GetFaceHandle()
-        {
-            lock (parent.Lock)
-            {
-                if (_cachedFont != null)
-                    return _cachedFont;
-
-                parent.Sawmill.Verbose($"Loading system font face: {PostscriptName}");
-
-                return _cachedFont = parent.LoadFontFace(this);
-            }
-        }
     }
 }

@@ -24,7 +24,7 @@ internal sealed partial class SystemFontManager : ISystemFontManagerInternal, IP
     private ISystemFontManagerInternal _implementation = default!;
 
     public bool IsSupported => _implementation.IsSupported;
-    public IEnumerable<ISystemFontFace> SystemFontFaces => _implementation.SystemFontFaces;
+    public IEnumerable<FontFace> SystemFontFaces => _implementation.SystemFontFaces;
 
     public void Initialize()
     {

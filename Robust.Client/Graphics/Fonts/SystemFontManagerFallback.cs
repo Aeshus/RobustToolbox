@@ -18,5 +18,5 @@ internal sealed class SystemFontManagerFallback : ISystemFontManagerInternal
     }
 
     public bool IsSupported => false;
-    public IEnumerable<ISystemFontFace> SystemFontFaces => [];
+    public IEnumerable<FontFace> SystemFontFaces => [];
 }

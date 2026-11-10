@@ -99,10 +99,8 @@ internal sealed unsafe class SystemFontManagerFontconfig : SystemFontManagerBase
         var weight = PatternGetInts(pattern, Fontconfig.FC_WEIGHT) ?? [Fontconfig.FC_WEIGHT_REGULAR];
         var width = PatternGetInts(pattern, Fontconfig.FC_WIDTH) ?? [Fontconfig.FC_WIDTH_NORMAL];
 
-        Fonts.Add(new Handle(this)
+        var metadata = new FontMetadata()
         {
-            FilePath = path,
-            FileIndex = idx,
             FaceNames = style ?? LocalizedStringSet.Empty,
             FullNames = fullName ?? LocalizedStringSet.Empty,
             FamilyNames = family ?? LocalizedStringSet.Empty,
@@ -110,7 +108,9 @@ internal sealed unsafe class SystemFontManagerFontconfig : SystemFontManagerBase
             Slant = SlantFromFontconfig(slant[0]),
             Weight = WeightFromFontconfig(weight[0]),
             Width = WidthFromFontconfig(width[0])
-        });
+        };
+        var face = FontManager.Load(new MemoryMappedFontMemoryHandle(path), idx, metadata);
+        Fonts.Add(face);
     }
 
     private static FontWeight WeightFromFontconfig(int value)
@@ -217,19 +217,6 @@ internal sealed unsafe class SystemFontManagerFontconfig : SystemFontManagerBase
             Primary = languages[0],
             Values = dict
         };
-    }
-
-    protected override FontFace LoadFontFace(BaseHandle handle)
-    {
-        var cast = (Handle)handle;
-
-        return FontManager.Load(new MemoryMappedFontMemoryHandle(cast.FilePath), cast.FileIndex);
-    }
-
-    private sealed class Handle(SystemFontManagerFontconfig parent) : BaseHandle(parent)
-    {
-        public required string FilePath;
-        public required int FileIndex;
     }
 }
 #endif

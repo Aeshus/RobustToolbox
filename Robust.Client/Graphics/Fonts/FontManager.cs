@@ -41,22 +41,22 @@ internal sealed partial class FontManager : IFontManagerInternal, IPostInjectIni
         _sawmill = _logManager.GetSawmill("font");
     }
 
-    public FontFace Load(Stream stream, int index = 0)
+    public FontFace Load(Stream stream, int index, FontMetadata? metadata = null)
     {
         // Freetype directly operates on the font memory managed by us.
         // As such, the font data should be pinned in POH.
         var fontData = stream.CopyToPinnedArray();
-        return Load(new ArrayFontMemoryHandle(fontData), index);
+        return Load(new ArrayFontMemoryHandle(fontData), index, metadata);
     }
 
-    public FontFace Load(IFontMemoryHandle memory, int index = 0)
+    public FontFace Load(IFontMemoryHandle memory, int index = 0, FontMetadata? metadata = null)
     {
-        return CreateFace(() => new FaceHandle(LoadFace(memory, index), memory));
+        return CreateFace(() => new FaceHandle(LoadFace(memory, index), memory), metadata);
     }
 
-    public FontFace LoadWithPostscriptName(IFontMemoryHandle memory, string postscriptName)
+    public FontFace LoadWithPostscriptName(IFontMemoryHandle memory, string postscriptName, FontMetadata? metadata = null)
     {
-        return CreateFace(() => new FaceHandle(LoadFaceWithPostscriptName(memory, postscriptName), memory));
+        return CreateFace(() => new FaceHandle(LoadFaceWithPostscriptName(memory, postscriptName), memory), metadata);
     }
 
     private Face LoadFaceWithPostscriptName(IFontMemoryHandle memory, string postscriptName)
@@ -87,9 +87,9 @@ internal sealed partial class FontManager : IFontManagerInternal, IPostInjectIni
             index);
     }
 
-    private FontFace CreateFace(Func<FaceHandle> faceHandle)
+    private FontFace CreateFace(Func<FaceHandle> faceHandle, FontMetadata? metadata = null)
     {
-        var handle = new FontFace(_clyde, _library, faceHandle)
+        var handle = new FontFace(_clyde, _library, faceHandle, metadata)
         {
             FontDpi = FontDpi
         };
