@@ -18,18 +18,18 @@ public sealed class FontFace : ISystemFontFace
     private readonly Library _library;
 
     private readonly Lazy<FaceHandle> _faceHandle;
-    private readonly Lazy<FontMetadata> _metadata;
+    private readonly FontMetadata _metadata;
 
     internal FontFace(
         IClyde clyde,
         Library library,
         Func<FaceHandle> faceHandle,
-        Func<FontMetadata>? metadata = null)
+        FontMetadata? metadata = null)
     {
         _clyde = clyde;
         _library = library;
         _faceHandle = new Lazy<FaceHandle>(faceHandle);
-        _metadata = new Lazy<FontMetadata>(() => metadata?.Invoke() ?? new FontMetadata(_faceHandle.Value.Face));
+        _metadata = metadata ?? new FontMetadata(_faceHandle.Value.Face);
     }
 
     internal uint FontDpi
@@ -114,17 +114,17 @@ public sealed class FontFace : ISystemFontFace
         return instance;
     }
 
-    public string PostscriptName => _metadata.Value.PostscriptName;
-    public string FullName => _metadata.Value.FullName;
-    public string FamilyName => _metadata.Value.FamilyName;
-    public string FaceName => _metadata.Value.FaceName;
-    public string GetLocalizedFullName(CultureInfo culture) => _metadata.Value.GetLocalizedFullName(culture);
-    public string GetLocalizedFamilyName(CultureInfo culture) => _metadata.Value.GetLocalizedFamilyName(culture);
-    public string GetLocalizedFaceName(CultureInfo culture) => _metadata.Value.GetLocalizedFaceName(culture);
+    public string PostscriptName => _metadata.PostscriptName;
+    public string FullName => _metadata.FullName;
+    public string FamilyName => _metadata.FamilyName;
+    public string FaceName => _metadata.FaceName;
+    public string GetLocalizedFullName(CultureInfo culture) => _metadata.GetLocalizedFullName(culture);
+    public string GetLocalizedFamilyName(CultureInfo culture) => _metadata.GetLocalizedFamilyName(culture);
+    public string GetLocalizedFaceName(CultureInfo culture) => _metadata.GetLocalizedFaceName(culture);
     public Font Load(int size) => new VectorFont(this, size);
-    public FontWeight Weight => _metadata.Value.Weight;
-    public FontSlant Slant => _metadata.Value.Slant;
-    public FontWidth Width => _metadata.Value.Width;
+    public FontWeight Weight => _metadata.Weight;
+    public FontSlant Slant => _metadata.Slant;
+    public FontWidth Width => _metadata.Width;
 }
 
 internal struct FaceHandle(Face face, IFontMemoryHandle memoryHandle)
