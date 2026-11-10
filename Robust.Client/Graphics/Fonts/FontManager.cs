@@ -49,7 +49,7 @@ internal sealed partial class FontManager : IFontManagerInternal, IPostInjectIni
         return Load(new ArrayFontMemoryHandle(fontData), index, metadata);
     }
 
-    public FontFace Load(IFontMemoryHandle memory, int index = 0, FontMetadata? metadata = null)
+    public FontFace Load(IFontMemoryHandle memory, int index, FontMetadata? metadata = null)
     {
         return CreateFace(() => new FaceHandle(LoadFace(memory, index), memory), metadata);
     }
