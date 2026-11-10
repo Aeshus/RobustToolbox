@@ -1,4 +1,3 @@
-using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using SharpFont;
@@ -43,11 +42,16 @@ internal sealed class FontMetadata
     [SetsRequiredMembers]
     public FontMetadata(Face face)
     {
-        if (!face.IsSfnt)
-            throw new InvalidOperationException($"Font '{face.FamilyName}' does not have an SFNT table");
+        PostscriptName = face.GetPostscriptName();
 
-        if (face.GetSfntTable(SfntTag.OS2) is not OS2 os2)
-            throw new InvalidOperationException($"Font '{face.FamilyName}' does not have an OS/2 table");
+        if (!face.IsSfnt || face.GetSfntTable(SfntTag.OS2) is not OS2 os2)
+        {
+            // Defaults
+            Weight = FontWeight.Normal;
+            Slant = FontSlant.Normal;
+            Width = FontWidth.Normal;
+            return;
+        }
 
         var flags = os2.SelectionFlags;
 
@@ -57,7 +61,6 @@ internal sealed class FontMetadata
         else
             slant = (flags & ItalicFlag) != 0 ? FontSlant.Italic : FontSlant.Normal;
 
-        PostscriptName = face.GetPostscriptName();
         Weight = (FontWeight)os2.WeightClass;
         Width = (FontWidth)os2.WidthClass;
         Slant = slant;
