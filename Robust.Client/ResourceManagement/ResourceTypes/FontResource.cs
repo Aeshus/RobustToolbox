@@ -21,7 +21,7 @@ namespace Robust.Client.ResourceManagement
 
             using (stream)
             {
-                FontFace = dependencies.Resolve<IFontManagerInternal>().Load(stream);
+                FontFace = dependencies.Resolve<IFontManagerInternal>().Load(stream, 0);
             }
         }
 
