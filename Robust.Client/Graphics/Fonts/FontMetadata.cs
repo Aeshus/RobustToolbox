@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using SharpFont;
 using SharpFont.TrueType;
@@ -10,15 +11,15 @@ internal sealed class FontMetadata
     private const int ItalicFlag = 1 << 0;
     private const int ObliqueFlag = 1 << 9;
 
-    public string PostscriptName { get; init; }
+    public required string PostscriptName { get; init; }
 
-    public LocalizedStringSet FullNames;
-    public LocalizedStringSet FamilyNames;
-    public LocalizedStringSet FaceNames;
+    public required LocalizedStringSet FullNames = LocalizedStringSet.Empty;
+    public required LocalizedStringSet FamilyNames = LocalizedStringSet.Empty;
+    public required LocalizedStringSet FaceNames = LocalizedStringSet.Empty;
 
-    public FontWeight Weight { get; init; }
-    public FontSlant Slant { get; init; }
-    public FontWidth Width { get; init; }
+    public required FontWeight Weight { get; init; }
+    public required FontSlant Slant { get; init; }
+    public required FontWidth Width { get; init; }
 
     public string FullName => GetLocalizedFullName(CultureInfo.CurrentCulture);
     public string FamilyName => GetLocalizedFamilyName(CultureInfo.CurrentCulture);
@@ -39,6 +40,7 @@ internal sealed class FontMetadata
         return FaceNames.GetLocalized(culture);
     }
 
+    [SetsRequiredMembers]
     public FontMetadata(Face face)
     {
         if (!face.IsSfnt)
@@ -59,5 +61,9 @@ internal sealed class FontMetadata
         Weight = (FontWeight)os2.WeightClass;
         Width = (FontWidth)os2.WidthClass;
         Slant = slant;
+    }
+
+    public FontMetadata()
+    {
     }
 }
