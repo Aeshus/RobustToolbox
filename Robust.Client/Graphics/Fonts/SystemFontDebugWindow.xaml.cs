@@ -32,7 +32,7 @@ internal sealed partial class SystemFontDebugWindow : DefaultWindow
         }
     }
 
-    private void SelectFontFamily(ISystemFontFace[] fonts)
+    private void SelectFontFamily(FontFace[] fonts)
     {
         FamilyLabel.Text = fonts[0].FamilyName;
 
@@ -82,7 +82,7 @@ internal sealed partial class SystemFontDebugWindow : DefaultWindow
 
     private sealed class Selector : Control
     {
-        public Selector(SystemFontDebugWindow window, ButtonGroup group, string family, ISystemFontFace[] fonts)
+        public Selector(SystemFontDebugWindow window, ButtonGroup group, string family, FontFace[] fonts)
         {
             var button = new Button
             {
