@@ -72,11 +72,6 @@ internal sealed unsafe class SystemFontManagerDirectWrite : SystemFontManagerBas
 
         lock (Lock)
         {
-            foreach (var systemFont in Fonts)
-            {
-                ((Handle)systemFont).FontFace->Release();
-            }
-
             Fonts.Clear();
         }
     }
@@ -109,7 +104,7 @@ internal sealed unsafe class SystemFontManagerDirectWrite : SystemFontManagerBas
         var result = set->GetFontFaceReference(fontIndex, &reference);
         ThrowIfFailed(result);
 
-        var handle = new Handle(this, reference)
+        var metadata = new FontMetadata
         {
             PostscriptName = GetLocalizedForLocaleOrFirst(postscriptNames, StandardLocale),
             FullNames = fullNames,
@@ -120,7 +115,15 @@ internal sealed unsafe class SystemFontManagerDirectWrite : SystemFontManagerBas
             Width = parsedWidth
         };
 
-        Fonts.Add(handle);
+        try
+        {
+            var face = LoadFontFace(reference, metadata);
+            Fonts.Add(face);
+        }
+        finally
+        {
+            reference->Release();
+        }
     }
 
     private static FontWeight ParseFontWeight(DWriteLocalizedString[]? strings)
@@ -186,9 +189,9 @@ internal sealed unsafe class SystemFontManagerDirectWrite : SystemFontManagerBas
         return fontSet;
     }
 
-    protected override IFontFaceHandle LoadFontFace(BaseHandle handle)
+    private FontFace LoadFontFace(IDWriteFontFaceReference* fontFace, FontMetadata metadata)
     {
-        var fontFace = ((Handle)handle).FontFace;
+        var index = (int)fontFace->GetFontFaceIndex();
         IDWriteFontFile* file = null;
         IDWriteFontFileLoader* loader = null;
 
@@ -231,7 +234,7 @@ internal sealed unsafe class SystemFontManagerDirectWrite : SystemFontManagerBas
 
                 localLoader->Release();
 
-                return FontManager.Load(new MemoryMappedFontMemoryHandle(path));
+                return FontManager.Load(new MemoryMappedFontMemoryHandle(path), index, metadata);
             }
             else
             {
@@ -247,7 +250,7 @@ internal sealed unsafe class SystemFontManagerDirectWrite : SystemFontManagerBas
                 ThrowIfFailed(result, "IDWriteFontFileLoader::CreateStreamFromKey");
 
                 using var streamObject = new DirectWriteStream(stream);
-                return FontManager.Load(streamObject, (int)fontFace->GetFontFaceIndex());
+                return FontManager.Load(streamObject, index, metadata);
             }
         }
         finally
@@ -381,11 +384,6 @@ internal sealed unsafe class SystemFontManagerDirectWrite : SystemFontManagerBas
         }
 
         return new LocalizedStringSet { Primary = strings[0].LocaleName, Values = dict };
-    }
-
-    private sealed class Handle(SystemFontManagerDirectWrite parent, IDWriteFontFaceReference* fontFace) : BaseHandle(parent)
-    {
-        public readonly IDWriteFontFaceReference* FontFace = fontFace;
     }
 
     /// <summary>
