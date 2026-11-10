@@ -113,6 +113,14 @@ public interface ISystemFontFace
     /// </summary>
     /// <param name="culture">The locale to fetch the localized string for.</param>
     string GetLocalizedFaceName(CultureInfo culture);
+
+    /// <summary>
+    /// Load the font face so that it can be used in-engine.
+    /// </summary>
+    /// <param name="size">The size to load the font at.</param>
+    /// <returns>A font object that can be used to render text.</returns>
+    [Obsolete("Use new VectorFont(FontFace, int) instead")]
+    Font Load(int size);
 }
 
 /// <summary>

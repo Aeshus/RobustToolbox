@@ -121,6 +121,7 @@ public sealed class FontFace : ISystemFontFace
     public string GetLocalizedFullName(CultureInfo culture) => _metadata.Value.GetLocalizedFullName(culture);
     public string GetLocalizedFamilyName(CultureInfo culture) => _metadata.Value.GetLocalizedFamilyName(culture);
     public string GetLocalizedFaceName(CultureInfo culture) => _metadata.Value.GetLocalizedFaceName(culture);
+    public Font Load(int size) => new VectorFont(this, size);
     public FontWeight Weight => _metadata.Value.Weight;
     public FontSlant Slant => _metadata.Value.Slant;
     public FontWidth Width => _metadata.Value.Width;
