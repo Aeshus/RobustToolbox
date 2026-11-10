@@ -6,7 +6,9 @@ using SharpFont;
 
 namespace Robust.Client.Graphics.Fonts;
 
-internal sealed class FontFace : IFontFace
+#pragma warning disable CS0618 // Type or member is obsolete
+public sealed class FontFace : ISystemFontFace
+#pragma warning restore CS0618 // Type or member is obsolete
 {
     private const float FreeType26Dot6Scale = 64f;
     private readonly Dictionary<(int, uint), FontInstance> _cachedInstances = new();
@@ -18,7 +20,7 @@ internal sealed class FontFace : IFontFace
     private readonly Lazy<FaceHandle> _faceHandle;
     private readonly Lazy<FontMetadata> _metadata;
 
-    public FontFace(
+    internal FontFace(
         IClyde clyde,
         Library library,
         Func<FaceHandle> faceHandle,

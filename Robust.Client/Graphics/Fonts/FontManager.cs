@@ -51,12 +51,12 @@ internal sealed partial class FontManager : IFontManagerInternal, IPostInjectIni
 
     public FontFace Load(IFontMemoryHandle memory, int index = 0)
     {
-        return CreateFaceHandle(() => new FaceHandle(LoadFace(memory, index), memory));
+        return CreateFace(() => new FaceHandle(LoadFace(memory, index), memory));
     }
 
     public FontFace LoadWithPostscriptName(IFontMemoryHandle memory, string postscriptName)
     {
-        return CreateFaceHandle(() => new FaceHandle(LoadFaceWithPostscriptName(memory, postscriptName), memory));
+        return CreateFace(() => new FaceHandle(LoadFaceWithPostscriptName(memory, postscriptName), memory));
     }
 
     private Face LoadFaceWithPostscriptName(IFontMemoryHandle memory, string postscriptName)
@@ -87,7 +87,7 @@ internal sealed partial class FontManager : IFontManagerInternal, IPostInjectIni
             index);
     }
 
-    private FontFace CreateFaceHandle(Func<FaceHandle> faceHandle)
+    private FontFace CreateFace(Func<FaceHandle> faceHandle)
     {
         var handle = new FontFace(_clyde, _library, faceHandle)
         {
