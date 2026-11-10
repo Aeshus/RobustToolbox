@@ -123,7 +123,7 @@ internal sealed unsafe class SystemFontManagerFontconfig : SystemFontManagerBase
         return value switch
         {
             Fontconfig.FC_SLANT_ITALIC => FontSlant.Italic,
-            Fontconfig.FC_SLANT_OBLIQUE => FontSlant.Italic,
+            Fontconfig.FC_SLANT_OBLIQUE => FontSlant.Oblique,
             _ => FontSlant.Normal,
         };
     }
