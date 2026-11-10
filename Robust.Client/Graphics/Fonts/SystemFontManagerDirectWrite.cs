@@ -234,7 +234,7 @@ internal sealed unsafe class SystemFontManagerDirectWrite : SystemFontManagerBas
 
                 localLoader->Release();
 
-                return FontManager.Load(new MemoryMappedFontMemoryHandle(path), index, metadata);
+                return FontManager.Load(() => new MemoryMappedFontMemoryHandle(path), index, metadata);
             }
             else
             {

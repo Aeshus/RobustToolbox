@@ -13,10 +13,10 @@ public interface IFontManager
 internal interface IFontManagerInternal : IFontManager
 {
     FontFace Load(Stream stream, int index, FontMetadata? metadata = null);
-    FontFace Load(IFontMemoryHandle memory, int index, FontMetadata? metadata = null);
+    FontFace Load(Func<IFontMemoryHandle> memory, int index, FontMetadata? metadata = null);
 
     FontFace LoadWithPostscriptName(
-        IFontMemoryHandle memory,
+        Func<IFontMemoryHandle> memory,
         string postscriptName,
         FontMetadata? metadata = null);
 

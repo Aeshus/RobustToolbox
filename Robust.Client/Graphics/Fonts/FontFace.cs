@@ -17,19 +17,24 @@ public sealed class FontFace : ISystemFontFace
     private readonly IClyde _clyde;
     private readonly Library _library;
 
-    private readonly Lazy<FaceHandle> _faceHandle;
+    // Keep the memory alive for as long as the native face uses it.
+    // ReSharper disable once PrivateFieldCanBeConvertedToLocalVariable
+    private readonly Lazy<IFontMemoryHandle> _memory;
+    private readonly Lazy<Face> _face;
     private readonly FontMetadata _metadata;
 
     internal FontFace(
         IClyde clyde,
         Library library,
-        Func<FaceHandle> faceHandle,
+        Func<IFontMemoryHandle> memory,
+        Func<IFontMemoryHandle, Face> face,
         FontMetadata? metadata = null)
     {
         _clyde = clyde;
         _library = library;
-        _faceHandle = new Lazy<FaceHandle>(faceHandle);
-        _metadata = metadata ?? new FontMetadata(_faceHandle.Value.Face);
+        _memory = new Lazy<IFontMemoryHandle>(memory);
+        _face = new Lazy<Face>(() => face(_memory.Value));
+        _metadata = metadata ?? new FontMetadata(_face.Value);
     }
 
     internal uint FontDpi
@@ -54,7 +59,7 @@ public sealed class FontFace : ISystemFontFace
         }
 
         // Check FreeType to see if it exists.
-        var index = _faceHandle.Value.Face.GetCharIndex((uint)chr.Value);
+        var index = _face.Value.GetCharIndex((uint)chr.Value);
 
         _glyphIndexCache.Add(chr, index);
 
@@ -109,7 +114,7 @@ public sealed class FontFace : ISystemFontFace
         if (_cachedInstances.TryGetValue((size, verticalResolution), out var instance))
             return instance;
 
-        instance = new FontInstance(_clyde, _library, _faceHandle.Value.Face, size, verticalResolution);
+        instance = new FontInstance(_clyde, _library, _face.Value, size, verticalResolution);
         _cachedInstances.Add((size, verticalResolution), instance);
         return instance;
     }
@@ -125,12 +130,4 @@ public sealed class FontFace : ISystemFontFace
     public FontWeight Weight => _metadata.Weight;
     public FontSlant Slant => _metadata.Slant;
     public FontWidth Width => _metadata.Width;
-}
-
-internal struct FaceHandle(Face face, IFontMemoryHandle memoryHandle)
-{
-    public readonly Face Face = face;
-
-    // ReSharper disable once UnusedMember.Local
-    private readonly IFontMemoryHandle _memoryHandle = memoryHandle;
 }

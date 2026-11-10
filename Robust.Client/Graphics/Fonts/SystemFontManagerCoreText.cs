@@ -92,7 +92,7 @@ internal sealed class SystemFontManagerCoreText : SystemFontManagerBase, ISystem
             Slant = slant,
             Width = width
         };
-        var face = FontManager.LoadWithPostscriptName(new MemoryMappedFontMemoryHandle(path), postscriptName, metadata);
+        var face = FontManager.LoadWithPostscriptName(() => new MemoryMappedFontMemoryHandle(path), postscriptName, metadata);
         Fonts.Add(face);
     }
 

@@ -109,7 +109,7 @@ internal sealed unsafe class SystemFontManagerFontconfig : SystemFontManagerBase
             Weight = WeightFromFontconfig(weight[0]),
             Width = WidthFromFontconfig(width[0])
         };
-        var face = FontManager.Load(new MemoryMappedFontMemoryHandle(path), idx, metadata);
+        var face = FontManager.Load(() => new MemoryMappedFontMemoryHandle(path), idx, metadata);
         Fonts.Add(face);
     }
 

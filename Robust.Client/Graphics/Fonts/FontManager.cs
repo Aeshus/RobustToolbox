@@ -46,17 +46,17 @@ internal sealed partial class FontManager : IFontManagerInternal, IPostInjectIni
         // Freetype directly operates on the font memory managed by us.
         // As such, the font data should be pinned in POH.
         var fontData = stream.CopyToPinnedArray();
-        return Load(new ArrayFontMemoryHandle(fontData), index, metadata);
+        return Load(() => new ArrayFontMemoryHandle(fontData), index, metadata);
     }
 
-    public FontFace Load(IFontMemoryHandle memory, int index, FontMetadata? metadata = null)
+    public FontFace Load(Func<IFontMemoryHandle> memory, int index, FontMetadata? metadata = null)
     {
-        return CreateFace(() => new FaceHandle(LoadFace(memory, index), memory), metadata);
+        return CreateFace(memory, handle => LoadFace(handle, index), metadata);
     }
 
-    public FontFace LoadWithPostscriptName(IFontMemoryHandle memory, string postscriptName, FontMetadata? metadata = null)
+    public FontFace LoadWithPostscriptName(Func<IFontMemoryHandle> memory, string postscriptName, FontMetadata? metadata = null)
     {
-        return CreateFace(() => new FaceHandle(LoadFaceWithPostscriptName(memory, postscriptName), memory), metadata);
+        return CreateFace(memory, handle => LoadFaceWithPostscriptName(handle, postscriptName), metadata);
     }
 
     private Face LoadFaceWithPostscriptName(IFontMemoryHandle memory, string postscriptName)
@@ -87,14 +87,17 @@ internal sealed partial class FontManager : IFontManagerInternal, IPostInjectIni
             index);
     }
 
-    private FontFace CreateFace(Func<FaceHandle> faceHandle, FontMetadata? metadata = null)
+    private FontFace CreateFace(
+        Func<IFontMemoryHandle> memory,
+        Func<IFontMemoryHandle, Face> face,
+        FontMetadata? metadata = null)
     {
-        var handle = new FontFace(_clyde, _library, faceHandle, metadata)
+        var f = new FontFace(_clyde, _library, memory, face, metadata)
         {
             FontDpi = FontDpi
         };
-        _loadedInstances.Add(handle);
-        return handle;
+        _loadedInstances.Add(f);
+        return f;
     }
 
     public void ClearFontCache()
