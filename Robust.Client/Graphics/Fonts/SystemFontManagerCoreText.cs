@@ -82,7 +82,7 @@ internal sealed class SystemFontManagerCoreText : SystemFontManagerBase, ISystem
 
         var path = Marshal.PtrToStringUTF8((nint)buf)!;
 
-        Fonts.Add(new Handle(this)
+        var metadata = new FontMetadata
         {
             PostscriptName = postscriptName,
             FullNames = LocalizedStringSet.FromSingle(displayName),
@@ -90,9 +90,10 @@ internal sealed class SystemFontManagerCoreText : SystemFontManagerBase, ISystem
             FaceNames = LocalizedStringSet.FromSingle(styleName),
             Weight = weight,
             Slant = slant,
-            Width = width,
-            Path = path
-        });
+            Width = width
+        };
+        var face = FontManager.LoadWithPostscriptName(new MemoryMappedFontMemoryHandle(path), postscriptName, metadata);
+        Fonts.Add(face);
     }
 
     private static unsafe (FontWeight, FontSlant, FontWidth) ParseTraits(__CFDictionary* dictionary)
@@ -175,21 +176,6 @@ internal sealed class SystemFontManagerCoreText : SystemFontManagerBase, ISystem
     public void Shutdown()
     {
         // Nothing to do.
-    }
-
-    protected override IFontFaceHandle LoadFontFace(BaseHandle handle)
-    {
-        var path = ((Handle)handle).Path;
-        Sawmill.Verbose(path);
-
-        // CTFontDescriptor does not seem to have any way to identify *which* index in the font file should be accessed.
-        // So we have to just load every one until the postscript name matches.
-        return FontManager.LoadWithPostscriptName(new MemoryMappedFontMemoryHandle(path), handle.PostscriptName);
-    }
-
-    private sealed class Handle(SystemFontManagerCoreText parent) : BaseHandle(parent)
-    {
-        public required string Path;
     }
 }
 #endif
