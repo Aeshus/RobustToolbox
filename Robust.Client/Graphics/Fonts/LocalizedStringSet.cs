@@ -12,6 +12,7 @@ internal struct LocalizedStringSet
     /// Used as fallback if the desired locale is not provided.
     /// </summary>
     public required string Primary;
+
     public required Dictionary<string, string> Values;
 
     public static LocalizedStringSet FromSingle(string value, string language = "en")
@@ -25,13 +26,12 @@ internal struct LocalizedStringSet
 
     public string GetLocalized(CultureInfo culture)
     {
-        var matchCulture = culture;
-        while (!Equals(matchCulture, CultureInfo.InvariantCulture))
+        while (!Equals(culture, CultureInfo.InvariantCulture))
         {
             if (Values.TryGetValue(culture.Name, out var value))
                 return value;
 
-            matchCulture = matchCulture.Parent;
+            culture = culture.Parent;
         }
 
         return Values[Primary];

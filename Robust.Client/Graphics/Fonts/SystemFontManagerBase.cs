@@ -36,18 +36,4 @@ internal abstract class SystemFontManagerBase
 
         SystemFontFaces = Fonts.AsReadOnly();
     }
-
-    protected static string GetLocalizedForLocaleOrFirst(LocalizedStringSet set, CultureInfo culture)
-    {
-        var matchCulture = culture;
-        while (!Equals(matchCulture, CultureInfo.InvariantCulture))
-        {
-            if (set.Values.TryGetValue(culture.Name, out var value))
-                return value;
-
-            matchCulture = matchCulture.Parent;
-        }
-
-        return set.Values[set.Primary];
-    }
 }

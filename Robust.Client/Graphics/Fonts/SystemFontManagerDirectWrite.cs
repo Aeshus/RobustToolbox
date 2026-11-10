@@ -106,7 +106,7 @@ internal sealed unsafe class SystemFontManagerDirectWrite : SystemFontManagerBas
 
         var metadata = new FontMetadata
         {
-            PostscriptName = GetLocalizedForLocaleOrFirst(postscriptNames, StandardLocale),
+            PostscriptName = postscriptNames.GetLocalized(StandardLocale),
             FullNames = fullNames,
             FamilyNames = familyNames,
             FaceNames = faceNames,
