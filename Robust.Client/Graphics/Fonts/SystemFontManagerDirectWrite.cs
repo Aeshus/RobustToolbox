@@ -14,7 +14,7 @@ using static TerraFX.Interop.DirectX.DWRITE_FACTORY_TYPE;
 using static TerraFX.Interop.DirectX.DWRITE_FONT_PROPERTY_ID;
 using static TerraFX.Interop.Windows.Windows;
 
-namespace Robust.Client.Graphics.Fonts;
+namespace Robust.Client.Graphics.FontManagement;
 
 /// <summary>
 /// Implementation of <see cref="ISystemFontManager"/> that uses DirectWrite on Windows.
@@ -72,6 +72,11 @@ internal sealed unsafe class SystemFontManagerDirectWrite : SystemFontManagerBas
 
         lock (Lock)
         {
+            foreach (var systemFont in Fonts)
+            {
+                ((Handle)systemFont).FontFace->Release();
+            }
+
             Fonts.Clear();
         }
     }
@@ -104,9 +109,9 @@ internal sealed unsafe class SystemFontManagerDirectWrite : SystemFontManagerBas
         var result = set->GetFontFaceReference(fontIndex, &reference);
         ThrowIfFailed(result);
 
-        var metadata = new FontMetadata
+        var handle = new Handle(this, reference)
         {
-            PostscriptName = postscriptNames.GetLocalized(StandardLocale),
+            PostscriptName = GetLocalizedForLocaleOrFirst(postscriptNames, StandardLocale),
             FullNames = fullNames,
             FamilyNames = familyNames,
             FaceNames = faceNames,
@@ -115,15 +120,7 @@ internal sealed unsafe class SystemFontManagerDirectWrite : SystemFontManagerBas
             Width = parsedWidth
         };
 
-        try
-        {
-            var face = LoadFontFace(reference, metadata);
-            Fonts.Add(face);
-        }
-        finally
-        {
-            reference->Release();
-        }
+        Fonts.Add(handle);
     }
 
     private static FontWeight ParseFontWeight(DWriteLocalizedString[]? strings)
@@ -189,9 +186,9 @@ internal sealed unsafe class SystemFontManagerDirectWrite : SystemFontManagerBas
         return fontSet;
     }
 
-    private FontFace LoadFontFace(IDWriteFontFaceReference* fontFace, FontMetadata metadata)
+    protected override IFontFaceHandle LoadFontFace(BaseHandle handle)
     {
-        var index = (int)fontFace->GetFontFaceIndex();
+        var fontFace = ((Handle)handle).FontFace;
         IDWriteFontFile* file = null;
         IDWriteFontFileLoader* loader = null;
 
@@ -234,7 +231,7 @@ internal sealed unsafe class SystemFontManagerDirectWrite : SystemFontManagerBas
 
                 localLoader->Release();
 
-                return FontManager.Load(() => new MemoryMappedFontMemoryHandle(path), index, metadata);
+                return FontManager.Load(new MemoryMappedFontMemoryHandle(path));
             }
             else
             {
@@ -250,7 +247,7 @@ internal sealed unsafe class SystemFontManagerDirectWrite : SystemFontManagerBas
                 ThrowIfFailed(result, "IDWriteFontFileLoader::CreateStreamFromKey");
 
                 using var streamObject = new DirectWriteStream(stream);
-                return FontManager.Load(streamObject, index, metadata);
+                return FontManager.Load(streamObject, (int)fontFace->GetFontFaceIndex());
             }
         }
         finally
@@ -384,6 +381,11 @@ internal sealed unsafe class SystemFontManagerDirectWrite : SystemFontManagerBas
         }
 
         return new LocalizedStringSet { Primary = strings[0].LocaleName, Values = dict };
+    }
+
+    private sealed class Handle(SystemFontManagerDirectWrite parent, IDWriteFontFaceReference* fontFace) : BaseHandle(parent)
+    {
+        public readonly IDWriteFontFaceReference* FontFace = fontFace;
     }
 
     /// <summary>
